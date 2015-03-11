@@ -1,0 +1,17 @@
+﻿@model CometCabsAdmin.Model.User
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Login</h2>
+
+@using (@Html.BeginForm("Login", "Account", FormMethod.Post))
+{
+    @Html.ValidationSummary()
+    <p>@Html.LabelFor(model => model.Username)</p>
+    <p>@Html.TextBoxFor(model => model.Username)</p>
+    <p>@Html.LabelFor(model => model.Password)</p>
+    <p>@Html.PasswordFor(model => model.Password)</p>
+    <button type="submit">Login</button>
+}

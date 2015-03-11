@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCabsAdmin.Web", "CometCabsAdmin.Web\CometCabsAdmin.Web.csproj", "{C121C4B4-A127-41AE-8FD8-31C1EF764C77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCabsAdmin.Tests", "CometCabsAdmin.Tests\CometCabsAdmin.Tests.csproj", "{E16C1C1B-3B87-4022-BB5F-6D1D103C20AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCabsAdmin.Model", "CometCabsAdmin.Model\CometCabsAdmin.Model.csproj", "{9819CB58-8F00-404C-999C-1B6EE280D564}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCabsAdmin.Dal", "CometCabsAdmin.Dal\CometCabsAdmin.Dal.csproj", "{C31C0319-70E7-4C84-9753-AD0B1BC87544}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7DEDEB81-8940-4005-9FA8-204482803610}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C121C4B4-A127-41AE-8FD8-31C1EF764C77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C121C4B4-A127-41AE-8FD8-31C1EF764C77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C121C4B4-A127-41AE-8FD8-31C1EF764C77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C121C4B4-A127-41AE-8FD8-31C1EF764C77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E16C1C1B-3B87-4022-BB5F-6D1D103C20AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E16C1C1B-3B87-4022-BB5F-6D1D103C20AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E16C1C1B-3B87-4022-BB5F-6D1D103C20AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E16C1C1B-3B87-4022-BB5F-6D1D103C20AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9819CB58-8F00-404C-999C-1B6EE280D564}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9819CB58-8F00-404C-999C-1B6EE280D564}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9819CB58-8F00-404C-999C-1B6EE280D564}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9819CB58-8F00-404C-999C-1B6EE280D564}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C31C0319-70E7-4C84-9753-AD0B1BC87544}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C31C0319-70E7-4C84-9753-AD0B1BC87544}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C31C0319-70E7-4C84-9753-AD0B1BC87544}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C31C0319-70E7-4C84-9753-AD0B1BC87544}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
