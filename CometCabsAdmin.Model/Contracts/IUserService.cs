@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using CometCabsAdmin.Model.Entities;
 
 namespace CometCabsAdmin.Model.Contracts
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
-using System.Web;
+using System.Text;
 
 namespace CometCabsAdmin.Web
 {
@@ -10,7 +10,7 @@ namespace CometCabsAdmin.Web
     {
         public IIdentity Identity { get; private set; }
 
-        public int UserId { get; set; }
+        public long UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string[] Roles { get; set; }
@@ -23,6 +23,6 @@ namespace CometCabsAdmin.Web
         public bool IsInRole(string roleName)
         {
             return Roles.Any(roles => roleName.Contains(roles));
-        }        
+        }
     }
 }

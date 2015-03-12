@@ -1,22 +1,22 @@
-﻿using CometCabsAdmin.Model.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using CometCabsAdmin.Model.Contracts;
+using CometCabsAdmin.Model.Entities;
 
-namespace CometCabsAdmin.Model
+namespace CometCabsAdmin.Model.DataServices
 {
-    public class UserService:IUserService
+    public class UserService : IUserService
     {
         private IRepository<User> _userRepository;
         private IRepository<UserProfile> _userProfileRepository;
+        private IRepository<UserRoles> _userRolesRepository;
 
         public UserService(IRepository<User> userRepository
-            , IRepository<UserProfile> userProfileRepository)
+            , IRepository<UserProfile> userProfileRepository
+            , IRepository<UserRoles> userRolesRepository)
         {
             _userRepository = userRepository;
             _userProfileRepository = userProfileRepository;
+            _userRolesRepository = userRolesRepository;
         }
 
         #region IUserService Members
@@ -44,6 +44,7 @@ namespace CometCabsAdmin.Model
         public void DeleteUser(User user)
         {
             _userProfileRepository.Delete(user.UserProfile);
+            _userRolesRepository.Delete(user.UserRole);
             _userRepository.Delete(user);
         }
 

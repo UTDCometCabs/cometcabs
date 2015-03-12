@@ -1,0 +1,65 @@
+﻿@model CometCabsAdmin.Web.Models.UserAccountViewModel
+
+@{
+    ViewBag.Title = "Manage User Account";
+    List<SelectListItem> roles = new List<SelectListItem>();
+    roles.Add(new SelectListItem { Text = "Admin", Value = "Admin" });
+}
+
+<h2>@ViewBag.Title</h2>
+@using (@Html.BeginForm("UserAccount", "Account", FormMethod.Post))
+{
+    @Html.ValidationSummary()
+    @Html.HiddenFor(model => model.Id)
+    <div>
+        @Html.LabelFor(model => model.UserName)
+    </div>
+    <div>
+        @Html.TextBoxFor(model => model.UserName)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.FirstName)
+    </div>
+    <div>
+        @Html.TextBoxFor(model => model.FirstName)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.LastName)
+    </div>
+    <div>
+        @Html.TextBoxFor(model => model.LastName)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.EmailAddress)
+    </div>
+    <div>
+        @Html.TextBoxFor(model => model.EmailAddress)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.RoleName)
+    </div>
+    <div>
+        @Html.DropDownListFor(model => model.RoleName, roles, "-- Select role --")
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Password)
+    </div>
+    <div>
+        @Html.PasswordFor(model => model.Password)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.PasswordConfirm)
+    </div>
+    <div>
+        @Html.PasswordFor(model => model.PasswordConfirm)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Address)
+    </div>
+    <div>
+        @Html.TextBoxFor(model => model.Address)
+    </div>
+    <div>
+        <button type="submit">Save</button>
+    </div>
+}

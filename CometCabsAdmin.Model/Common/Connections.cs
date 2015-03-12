@@ -1,6 +1,6 @@
 ﻿using CometCabsAdmin.Model.Contracts;
 
-namespace CometCabsAdmin.Model
+namespace CometCabsAdmin.Model.Common
 {
     public class Connections : IConnections
     {
@@ -10,6 +10,7 @@ namespace CometCabsAdmin.Model
         {
             _cometCabsConnectionString = cometCabsConnectionString;
         }
+
         #region IConnections Members
 
         public string CometCabsConnectionString

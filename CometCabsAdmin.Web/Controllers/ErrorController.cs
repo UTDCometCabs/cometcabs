@@ -8,10 +8,14 @@ namespace CometCabsAdmin.Web.Controllers
 {
     public class ErrorController : Controller
     {
-        // GET: Error
         public ActionResult Index()
         {
-            return View();
+            return View("An error has occured");
+        }
+
+        public ActionResult AccessDenied()
+        {
+            return View("Access denied.");
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿using System.Data.Entity;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using CometCabsAdmin.Dal;
-using CometCabsAdmin.Model;
+using CometCabsAdmin.Model.Common;
 using CometCabsAdmin.Model.Contracts;
+using CometCabsAdmin.Model.DataServices;
 
 namespace CometCabsAdmin.Web
 {
@@ -23,7 +23,6 @@ namespace CometCabsAdmin.Web
         {
             var container = new UnityContainer();
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<CometCabsDbContext>());
             RegisterTypes(container);
 
             return container;
@@ -32,8 +31,9 @@ namespace CometCabsAdmin.Web
         public static void RegisterTypes(IUnityContainer container)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["CometCabsConnectionString"].ConnectionString.ToString();
-            
-            container.RegisterType<IConnections, Connections>(new InjectionConstructor(connectionString)); 
+
+            container.RegisterType<IConnections, Connections>(new InjectionConstructor(connectionString));
+            container.RegisterType<IEncryption, Encryption>();
             container.RegisterType<IUserService, UserService>();
             container.RegisterType<IDbContext, CometCabsDbContext>();
             container.RegisterType(typeof(IRepository<>), typeof(Repository<>));

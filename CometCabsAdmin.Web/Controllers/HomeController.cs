@@ -1,14 +1,12 @@
-﻿using CometCabsAdmin.Model;
-using CometCabsAdmin.Model.Contracts;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
+using CometCabsAdmin.Model.Contracts;
+using CometCabsAdmin.Model.Entities;
 
 namespace CometCabsAdmin.Web.Controllers
 {
-    [Authorize]
+    [CometCabsAuthorize(Roles="Admin")]
     public class HomeController : Controller
     {
         private IUserService _userService;
@@ -17,7 +15,7 @@ namespace CometCabsAdmin.Web.Controllers
         {
             _userService = userService;
         }
-
+        
         [HttpGet]
         public ActionResult Index()
         {

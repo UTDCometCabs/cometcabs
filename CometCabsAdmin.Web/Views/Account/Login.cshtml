@@ -1,4 +1,4 @@
-﻿@model CometCabsAdmin.Model.User
+﻿@model CometCabsAdmin.Web.Models.LoginViewModel
 
 @{
     ViewBag.Title = "Login";
@@ -13,5 +13,6 @@
     <p>@Html.TextBoxFor(model => model.Username)</p>
     <p>@Html.LabelFor(model => model.Password)</p>
     <p>@Html.PasswordFor(model => model.Password)</p>
+    <p>@Html.CheckBoxFor(model => model.RememberMe)<span>@Html.DisplayNameFor(model => model.RememberMe)</span></p>
     <button type="submit">Login</button>
 }
