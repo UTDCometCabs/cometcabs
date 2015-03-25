@@ -24,7 +24,25 @@ angular.module('starter', ['ionic'])
 
 		/*Part of the example code I started from. Apparently unnecessary*/
         //$scope.map = map;
-
+		/*Code to add a marker representing a single icon to represent a cab.
+		The icon does not resize, so I'll have to add some sort of zoom listener
+		Will probably use http://stackoverflow.com/questions/3281524/resize-markers-depending-on-zoom-google-maps-v3
+		as a reference for that*/
+			var marker = new google.maps.Marker({
+		map: map,
+		position: new google.maps.LatLng(32.986498, -96.751010),
+		icon: {
+		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+		fillOpacity: 1.0,
+		fillColor: '005763',
+		strokeOpacity: 1.0,
+		strokeColor: 'fff000',
+		strokeWeight: 1.0,				
+		scale: 8 //pixels
+		//map: map
+		}
+		
+}); 
        
       }
 	  /*Last line of code from my things*/
