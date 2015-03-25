@@ -40,11 +40,24 @@ angular.module('starter', ['ionic'])
 		strokeWeight: 1.0,				
 		scale: 8 //pixels
 		//map: map
-		}
-		
-}); 
+		}		
+		}); 
+		var rutfordCoords = [
+			new google.maps.LatLng(32.980504, -96.750881),
+			new google.maps.LatLng(32.98422, -96.751053),
+			new google.maps.LatLng(32.992023, -96.750967),
+			new google.maps.LatLng(32.992068, -96.752984)
+			];
+		var rutfordRoute = new google.maps.Polyline({
+			path: rutfordCoords,
+			geodesic: true, 
+			strokeColor: 'fff000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2.0		
+		});
+		rutfordRoute.setMap(map);
        
-      }
+  }
 	  /*Last line of code from my things*/
       google.maps.event.addDomListener(window, 'load', initialize);
 	/*Everything after here was from example code (http://paulsutherland.net/ionic-and-google-maps-api/. 
