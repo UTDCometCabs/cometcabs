@@ -56,6 +56,19 @@ angular.module('starter', ['ionic'])
 			strokeWeight: 2.0		
 		});
 		rutfordRoute.setMap(map);
+		 if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			var marker = new google.maps.Marker({
+				position: currentPosition,
+				map: map,
+				title:"You are here"
+		});		
+			});
+		} else {
+			alert("Geolocation is not supported by this browser.");
+		}
+		
        
   }
 	  /*Last line of code from my things*/
