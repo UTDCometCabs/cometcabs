@@ -28,32 +28,140 @@ angular.module('starter', ['ionic'])
 		The icon does not resize, so I'll have to add some sort of zoom listener
 		Will probably use http://stackoverflow.com/questions/3281524/resize-markers-depending-on-zoom-google-maps-v3
 		as a reference for that*/
-			var marker = new google.maps.Marker({
+			var rutfordMarker = new google.maps.Marker({
 		map: map,
 		position: new google.maps.LatLng(32.986498, -96.751010),
 		icon: {
 		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
 		fillOpacity: 1.0,
-		fillColor: '005763',
+		fillColor: '#008000',
 		strokeOpacity: 1.0,
-		strokeColor: 'fff000',
+		strokeColor: '#008000',
 		strokeWeight: 1.0,				
-		scale: 8 //pixels
+		scale: 7 //pixels
 		//map: map
 		}		
 		}); 
 		var rutfordCoords = [
+			new google.maps.LatLng(32.981273, -96.750881),
+			new google.maps.LatLng(32.981273, -96.750190),
+			new google.maps.LatLng(32.980547, -96.750190),
 			new google.maps.LatLng(32.980504, -96.750881),
 			new google.maps.LatLng(32.98422, -96.751053),
 			new google.maps.LatLng(32.992023, -96.750967),
-			new google.maps.LatLng(32.992068, -96.752984)
+			new google.maps.LatLng(32.992068, -96.752984),
+			new google.maps.LatLng(32.992768, -96.753057),
+			new google.maps.LatLng(32.992757, -96.751475),
+			new google.maps.LatLng(32.992068, -96.751461)
 			];
 		var rutfordRoute = new google.maps.Polyline({
 			path: rutfordCoords,
 			geodesic: true, 
-			strokeColor: 'fff000',
+			strokeColor: '#005710',
 			strokeOpacity: 1.0,
-			strokeWeight: 2.0		
+			strokeWeight: 2.5,
+			map: map				
+		});
+		var phase1SouthCoords = [
+			new google.maps.LatLng(32.985647, -96.74914),			
+			new google.maps.LatLng(32.985672, -96.754277),
+			new google.maps.LatLng(32.985456, -96.754309),
+			new google.maps.LatLng(32.985035, -96.753988),
+			new google.maps.LatLng(32.983748, -96.754399),
+			new google.maps.LatLng(32.983750, -96.755866),
+			new google.maps.LatLng(32.985345, -96.755054),
+			new google.maps.LatLng(32.985664, -96.755254),
+			new google.maps.LatLng(32.985672, -96.754277)			
+		];
+			var phase1SouthMarker = new google.maps.Marker({
+		map: map,
+		position: new google.maps.LatLng(32.985672, -96.754399),
+		icon: {
+		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+		fillOpacity: 1.0,
+		fillColor: '#FF0000',
+		strokeOpacity: 1.0,
+		strokeColor: '#FF0000',
+		strokeWeight: 1.0,	
+		rotation: -90,
+		scale: 7 //pixels
+		//map: map
+		}		
+		});
+		var phase1SouthRoute = new google.maps.Polyline({
+			path: phase1SouthCoords,
+			geodesic: true, 
+			strokeColor: '#FF33FF',
+			strokeOpacity: 1.0,
+			strokeWeight: 2.5,	
+			map: map
+		});
+		var phase1NorthCoords = [
+			new google.maps.LatLng(32.985645, -96.74914),			
+			new google.maps.LatLng(32.985668, -96.754610),
+			new google.maps.LatLng(32.985850, -96.754610),
+			new google.maps.LatLng(32.985864, -96.753907),
+			new google.maps.LatLng(32.986955, -96.753751),
+			new google.maps.LatLng(32.987130, -96.753778),
+			new google.maps.LatLng(32.987124, -96.753910),
+			new google.maps.LatLng(32.988195, -96.753947),
+			new google.maps.LatLng(32.988219, -96.755001),
+			new google.maps.LatLng(32.988388, -96.755001),
+			new google.maps.LatLng(32.988368, -96.753725),
+			new google.maps.LatLng(32.985668, -96.753741)		
+		];		
+		var phase1NorthRoute = new google.maps.Polyline({
+			path: phase1NorthCoords,
+			geodesic: true, 
+			strokeColor: '#FF9900',
+			strokeOpacity: 0.5,
+			strokeWeight: 2.5,	
+			map: map
+		});
+		var commonsCoords = [
+			new google.maps.LatLng(32.985645, -96.74914),			
+			new google.maps.LatLng(32.985666, -96.750987),
+			new google.maps.LatLng(32.990643, -96.750946),
+			new google.maps.LatLng(32.990721, -96.753669),
+			new google.maps.LatLng(32.991789, -96.753631),
+			new google.maps.LatLng(32.991789, -96.752607),
+			new google.maps.LatLng(32.990734, -96.752620),
+			new google.maps.LatLng(32.990721, -96.750949),
+			new google.maps.LatLng(32.990643, -96.750946)			
+		];
+		var commonsRoute = new google.maps.Polyline({
+			path: commonsCoords,
+			geodesic: true, 
+			strokeColor: '#9978c8',
+			strokeOpacity: 0.5,
+			strokeWeight: 2.5,	
+			map: map
+		});
+		var mcDermottCoords = [
+			new google.maps.LatLng(32.990034, -96.744273),			
+			new google.maps.LatLng(32.989341, -96.745367),
+			new google.maps.LatLng(32.988540, -96.745046),
+			new google.maps.LatLng(32.987919, -96.746194),
+			new google.maps.LatLng(32.987982, -96.746966),
+			new google.maps.LatLng(32.987361, -96.747020),
+			new google.maps.LatLng(32.987487, -96.746172),
+			new google.maps.LatLng(32.984653, -96.745990),
+			new google.maps.LatLng(32.984635, -96.745367),
+			new google.maps.LatLng(32.985616, -96.745325),
+			new google.maps.LatLng(32.985616, -96.745958),
+			new google.maps.LatLng(32.987829, -96.746204),
+			new google.maps.LatLng(32.988405, -96.744938),			
+			new google.maps.LatLng(32.988747, -96.745046),			
+			new google.maps.LatLng(32.989359, -96.743908),		
+			new google.maps.LatLng(32.990034, -96.744273)
+		];
+		var mcDermottRoute = new google.maps.Polyline({
+			path: mcDermottCoords,
+			geodesic: true, 
+			strokeColor: '#003986',
+			strokeOpacity: 1.0,
+			strokeWeight: 2.5,	
+			map: map
 		});
 		rutfordRoute.setMap(map);
 		 if (navigator.geolocation) {
