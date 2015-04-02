@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "View Statistics";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div ng-controller="StatisticController">
+    <div class="row">
+        <div class="col-md-2">
+            <ul class="nav nav-pills">
+                <li role="presentation">
+                    <a href="javascript:void(0)" ng-click="viewChart('rider')">View Riders Chart</a>
+                </li>
+                <li role="presentation">
+                    <a href="javascript:void(0)" ng-click="viewChart('cab')">View Cabs Chart</a>
+                </li>
+                <li role="presentation">
+                    <a href="javascript:void(0)" ng-click="viewChart('route')">View Routes Chart</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-7" style="padding-left: 0px;">
+            <img id="chart" src="" />
+        </div>
+        <div class="col-md-3" style="padding-left: 0px;">
+            <div class="panel panel-default" ng-show="chartType != ''">
+                <!-- Default panel contents -->
+                <div class=" panel-heading" ng-show="chartType != ''">Parameter</div>
+                <div class="panel-body" ng-show="charttype != ''">
+                    <div id=" rider-parameter" ng-show="chartType == 'rider'">
+                        @using (Html.BeginForm(new { @class = "form-horizontal" }))
+                        {
+                            <div class="form-group">
+                                <div class="col-sm-4">
+                                    <label class="col-lg-12 control-label">Weekending</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    <input class="form-control" ng-model="weekending" type="date" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-4">
+                                    <button type="button" class="btn btn-default" ng-click="refreshChart('rider')">Refresh</button>
+                                </div>
+                                <div class="col-sm-8">
+                                    <button type="button" class="btn btn-default" ng-click="clearParameters()">Clear</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div id="rider-parameter" ng-show="chartType == 'cab'">
+                        @using (Html.BeginForm(new { @class = "form-horizontal" }))
+                        {
+                            <div class="form-group">
+                                <div class="col-sm-5">
+                                    <label class="col-lg-12 control-label">Starting Period</label>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select>
+                                        <option value="">Month</option>
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <select>
+                                        <option value="">Year</option>
+                                        <option value="2015">2015</option>
+                                        <option value="2016">2016</option>
+                                        <option value="2017">2017</option>
+                                        <option value="2018">2018</option>
+                                        <option value="2019">2019</option>
+                                        <option value="2020">2020</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">    
+                                <div class="col-sm-3">
+                                    <button type="button" class="btn btn-default" ng-click="refreshChart('cab')">Refresh</button>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button type="button" class="btn btn-default" ng-click="clearParameters()">Clear</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div id="rider-parameter" ng-show="chartType == 'route'">
+                        @using (Html.BeginForm(new { @class = "form-horizontal" }))
+                        {
+                            <div class="form-group">
+                                <div class="col-sm-5">
+                                    <label class="col-lg-12 control-label">Starting Period</label>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select>
+                                        <option value="">Month</option>
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <select>
+                                        <option value="">Year</option>
+                                        <option value="2015">2015</option>
+                                        <option value="2016">2016</option>
+                                        <option value="2017">2017</option>
+                                        <option value="2018">2018</option>
+                                        <option value="2019">2019</option>
+                                        <option value="2020">2020</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-3">
+                                    <button type="button" class="btn btn-default" ng-click="refreshChart('route')">Refresh</button>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button type="button" class="btn btn-default" ng-click="clearParameters()">Clear</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ViewScripts
+{
+    <script>
+        angular.module('CometCabs', [])
+            .controller('StatisticController', function ($scope, $http, $sce, $compile) {
+                $scope.chartType = '';
+
+                var chart = $('#chart');
+                chart.hide();
+
+                $scope.viewChart = function (param) {
+                    $scope.chartType = param;
+                    chart.attr('src', '/Statistics/ViewCharts?key=' + param);
+                    chart.show();
+                };
+
+                $scope.refreshChart = function (param) {
+                    return;
+                };
+
+                $scope.clearParameters = function () {
+                    return;
+                };
+            });
+    </script>
+}

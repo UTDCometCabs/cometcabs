@@ -47,7 +47,12 @@ namespace CometCabsAdmin.Web
             }
             else
             {
-                filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(new { controller = "Account", action = "Login" }));
+                filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(
+                    new { 
+                        controller = "Account", 
+                        action = "Login", 
+                        returnUrl = HttpContext.Current.Request.Url.AbsoluteUri  
+                    }));
             }
         }
     }

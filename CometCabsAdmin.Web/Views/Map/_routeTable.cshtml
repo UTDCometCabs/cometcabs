@@ -1,0 +1,27 @@
+﻿@model List<CometCabsAdmin.Model.Entities.Route>
+
+@if (Model.Count() > 0)
+{
+    WebGrid grid = new WebGrid(source: ViewData.Model, canPage: false, canSort: false);
+
+    @grid.GetHtml(htmlAttributes: new { id = "route-grid" }, tableStyle: "table table-striped table-hover table-condensed", columns: grid.Columns(
+                    grid.Column(columnName: "RouteName", header: "Route Name"),
+                         grid.Column(columnName: "IsActive", header: "Status", format: @<text>@item.IsActive ? "Active", "Inactive"</text>),
+                    grid.Column(columnName: "Route Color", header: "Route Color", format:
+                    @<text>
+                        <div style="background-color: @item.RouteColor"></div>
+                    </text>),
+            grid.Column(format:
+            @<text>
+                <a href="javascript:void(0)" ng-click="toggleEdit()">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </a>
+            </text>
+                                      )
+                                  )
+                              )
+}
+else
+{
+    <span>No route created</span>
+}

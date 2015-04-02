@@ -15,5 +15,7 @@ namespace CometCabsAdmin.Web.Models
 
         [Display(Name = "Remember me on this computer")]
         public bool RememberMe { get; set; }
+
+        public string ReturnUrl { get; set; }
     }
 }

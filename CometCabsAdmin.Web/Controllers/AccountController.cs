@@ -11,7 +11,7 @@ using CometCabsAdmin.Web.Models;
 
 namespace CometCabsAdmin.Web.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private IEncryption _encryption;
         private IUserService _userService;
@@ -38,7 +38,7 @@ namespace CometCabsAdmin.Web.Controllers
             return View();
         }
 
-        [CometCabsAuthorize(Roles="Admin")]
+        // [CometCabsAuthorize(Roles = "Admin")]
         [HttpGet]
         public ActionResult UserAccount()
         {
@@ -54,8 +54,6 @@ namespace CometCabsAdmin.Web.Controllers
             {
                 try
                 {
-                    string ipAddress = Request.ServerVariables["REMOTE_ADDR"];
-
                     User user = new User
                     {
                         Username = model.UserName,
@@ -63,20 +61,20 @@ namespace CometCabsAdmin.Web.Controllers
                         Password = _encryption.Encrypt(model.Password),
                         CreatedBy = HttpContext.User.Identity.Name,
                         CreateDate = DateTime.Now,
-                        IPAddress = ipAddress,
+                        IPAddress = IPAddress,
                         UserProfile = new UserProfile
                         {
                             FirstName = model.FirstName,
                             LastName = model.LastName,
                             Address = model.Address,
-                            IPAddress = ipAddress,
+                            IPAddress = IPAddress,
                         },
                         UserRole = new UserRoles
                         {
                             RoleName = model.RoleName,
                             CreatedBy = HttpContext.User.Identity.Name,
                             CreateDate = DateTime.Now,
-                            IPAddress = ipAddress,
+                            IPAddress = IPAddress,
                         }
                     };
 
@@ -149,7 +147,18 @@ namespace CometCabsAdmin.Web.Controllers
 
                     if (roles.Contains("Admin"))
                     {
-                        return RedirectToAction("Index", "Home");
+                        if (!string.IsNullOrWhiteSpace(model.ReturnUrl))
+                        {
+                            return Redirect(model.ReturnUrl);
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Administrator priviledge is required to view this page");
                     }
                 }
                 else

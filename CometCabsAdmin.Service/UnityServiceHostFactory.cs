@@ -1,34 +1,31 @@
-﻿using System.Configuration;
-using System.Web.Mvc;
+﻿using System;
+using System.Configuration;
+using System.ServiceModel;
+using System.ServiceModel.Activation;
 using Microsoft.Practices.Unity;
 using CometCabsAdmin.Dal;
 using CometCabsAdmin.Model.Common;
 using CometCabsAdmin.Model.Contracts;
 using CometCabsAdmin.Model.DataServices;
 
-namespace CometCabsAdmin.Web
+namespace CometCabsAdmin.Service
 {
-    public class UnityConfig
+    public class UnityServiceHostFactory : ServiceHostFactory
     {
-        public static IUnityContainer GetConfiguredContainer()
+        private readonly IUnityContainer _container;
+
+        public UnityServiceHostFactory()
         {
-            var container = BuildUnityContainer();
-
-            DependencyResolver.SetResolver(new UnityServiceLocator(container));
-
-            return container;
+            _container = new UnityContainer();
+            RegisterTypes(_container);
         }
 
-        private static IUnityContainer BuildUnityContainer()
+        protected override ServiceHost CreateServiceHost(Type serviceType, Uri[] baseAddresses)
         {
-            var container = new UnityContainer();
-
-            RegisterTypes(container);
-
-            return container;
+            return new UnityServiceHost(this._container, serviceType, baseAddresses);
         }
 
-        public static void RegisterTypes(IUnityContainer container)
+        private void RegisterTypes(IUnityContainer container)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["CometCabsConnectionString"].ConnectionString.ToString();
 

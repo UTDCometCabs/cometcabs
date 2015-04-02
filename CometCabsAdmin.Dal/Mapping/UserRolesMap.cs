@@ -13,11 +13,11 @@ namespace CometCabsAdmin.Dal.Mapping
             // Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity); 
 
             Property(t => t.RoleName).IsRequired().HasMaxLength(20).HasColumnType("nvarchar");
-            Property(t => t.CreatedBy).IsRequired().HasColumnType("nvarchar").HasMaxLength(20); ;
+            Property(t => t.CreatedBy).IsRequired().HasColumnType("nvarchar").HasMaxLength(20);
             Property(t => t.CreateDate).IsRequired();
-            Property(t => t.UpdatedBy).HasColumnType("nvarchar").HasMaxLength(20); ;
+            Property(t => t.UpdatedBy).HasColumnType("nvarchar").HasMaxLength(20);
             Property(t => t.UpdateDate);
-            Property(t => t.IPAddress).HasColumnType("nvarchar").HasMaxLength(15); ;
+            Property(t => t.IPAddress).HasColumnType("nvarchar").HasMaxLength(15);
 
             ToTable("UsersRoles");
 

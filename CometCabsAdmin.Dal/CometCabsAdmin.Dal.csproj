@@ -59,6 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CometCabsDbContext.cs" />
+    <Compile Include="Mapping\CabMap.cs" />
+    <Compile Include="Mapping\RouteCoordinatesMap.cs" />
+    <Compile Include="Mapping\RouteMap.cs" />
     <Compile Include="Mapping\UserMap.cs" />
     <Compile Include="Mapping\UserProfileMap.cs" />
     <Compile Include="Mapping\UserRolesMap.cs" />

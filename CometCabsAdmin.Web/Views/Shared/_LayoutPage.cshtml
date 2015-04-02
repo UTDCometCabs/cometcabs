@@ -10,6 +10,22 @@
     @Styles.Render("~/bundles/jqueryui")
 </head>
 <body ng-app="CometCabs">
+    @if (ViewBag.Title != "Login")
+    {
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <span style="font-size: 16pt; font-weight: bold;">UTD CometCabs</span>
+                <ul class="nav nav-pills">
+                    <li role="presentation">@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li role="presentation">@Html.ActionLink("Manage Map", "Index", "Map")</li>
+                    <li role="presentation">@Html.ActionLink("Manage Cabs", "Index", "Cab")</li>
+                    <li role="presentation">@Html.ActionLink("Manage Users", "Index", "Account")</li>
+                    <li role="presentation">@Html.ActionLink("View Statistics", "Index", "Statistics")</li>
+                    <li role="presentation">@Html.ActionLink("Logout", "Logout", "Account")</li>
+                </ul>
+            </div>
+        </nav>
+    }
     <div>
         @RenderBody()
     </div>

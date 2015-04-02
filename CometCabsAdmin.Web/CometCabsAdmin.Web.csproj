@@ -151,15 +151,19 @@
     <Compile Include="App_Start\UnityMvcActivator.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="App_Code\CometCabsAuthorize.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\CabsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="App_Code\CustomPrincipal.cs" />
     <Compile Include="Controllers\MapController.cs" />
+    <Compile Include="Controllers\StatisticsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CustomPrincipalSerializeModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\MapViewModel.cs" />
     <Compile Include="Models\UserAccountViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -214,6 +218,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <None Include="Properties\PublishProfiles\Debug.pubxml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -241,10 +246,15 @@
     <Content Include="Views\Error\Index.cshtml" />
     <Content Include="Views\Account\UserAccount.cshtml" />
     <Content Include="Views\Map\Index.cshtml" />
+    <Content Include="Views\Map\_routeTable.cshtml" />
+    <Content Include="Views\Map\_routeForm.cshtml" />
+    <Content Include="Views\Statistics\Index.cshtml" />
+    <Content Include="Views\Statistics\_riderChart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="Views\Base\" />
+    <Folder Include="Views\Cabs\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

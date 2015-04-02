@@ -4,15 +4,56 @@
     ViewBag.Title = "Login";
 }
 
-<h2>Login</h2>
+<h2>@ViewBag.Title</h2>
 
-@using (@Html.BeginForm("Login", "Account", FormMethod.Post))
+<div ng-controller="LoginController" style="width: 600px;">
+    @using (@Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "form-horizontal" }))
+    {
+        <div class="form-group">
+            <div class="col-sm-5">
+                @Html.ValidationSummary()
+                @Html.Hidden("ReturnUrl", Request.QueryString["returnUrl"])
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                @Html.LabelFor(model => model.Username)
+            </div>
+            <div class="col-sm-5">
+                @Html.TextBoxFor(model => model.Username, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                @Html.LabelFor(model => model.Password)
+            </div>
+            <div class="col-sm-5">
+                @Html.PasswordFor(model => model.Password, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-xs-2">
+            </div>
+            <div class="col-xs-offset-0 col-sm-5">
+                <div class="checkbox">
+                    @Html.CheckBoxFor(model => model.RememberMe)<span>@Html.DisplayNameFor(model => model.RememberMe)</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-5">
+                <button type="submit">Login</button>
+            </div>
+        </div>
+    }
+</div>
+
+@section ViewScripts
 {
-    @Html.ValidationSummary()
-    <p>@Html.LabelFor(model => model.Username)</p>
-    <p>@Html.TextBoxFor(model => model.Username)</p>
-    <p>@Html.LabelFor(model => model.Password)</p>
-    <p>@Html.PasswordFor(model => model.Password)</p>
-    <p>@Html.CheckBoxFor(model => model.RememberMe)<span>@Html.DisplayNameFor(model => model.RememberMe)</span></p>
-    <button type="submit">Login</button>
+    <script>
+        var app = angular.module('CometCabs', []);
+        app.controller('LoginController', function ($scope, $http, $sce, $compile) {
+
+        });
+    </script>
 }
