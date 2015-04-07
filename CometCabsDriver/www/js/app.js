@@ -37,7 +37,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   
   .state('driver', {
 	  url: '/driver',
-	  templateUrl: 'templates/driver.html'
+	  templateUrl: 'templates/driver.html',
+	  controller: 'MapCtrl'
   });
   /*
   // setup an abstract state for the tabs directive
