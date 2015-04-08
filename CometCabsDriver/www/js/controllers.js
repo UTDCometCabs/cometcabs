@@ -35,27 +35,21 @@ angular.module('starter.controllers', [])
 })
 
 .controller('MapCtrl', function($scope, $ionicLoading, $compile) {
-	var rutfordCoords;
-	var phase1SouthCoords;
-	var phase1NorthCoords;
-	var commonsCoords;
-	var mcDermottCoords;
-	
-	var rutfordRoute;		
-	var phase1SouthRoute;	
-	var phase1NorthRoute;
-	var commonsRoute;	
-	var mcDermottRoute;
-		
+			
 	var rutfordMarker; 
 	var phase1SouthMarker;
-	
+	var chicago = new google.maps.LatLng(41.850033, -87.6500523);
 	var map;
+	var full;
+	var fullControl;
+	var fullUI;	
+	var totalRiders;
+	var totalText;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
-		
-      
+		full = false;
+		totalRiders = 0;
         var mapOptions = {
           streetViewControl:true,
           center: site,
@@ -64,11 +58,11 @@ angular.module('starter.controllers', [])
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
-        //setRouteCoordinates(); //Sets the details for routes
-		//setCabMarkers();
+        setRouteCoordinates(); //Sets the details for routes
+		setCabMarkers();
 		
 		/*Sets a marker for the current position */
-/* 		if (navigator.geolocation) {
+		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			var marker = new google.maps.Marker({
@@ -79,8 +73,27 @@ angular.module('starter.controllers', [])
 			});
 		} else {
 			alert("Geolocation is not supported by this browser.");
-		} */
+		}
+		var fullControlDiv = document.createElement('div');		
+		fullControl = new FullControl(fullControlDiv, map);
+		fullControlDiv.index = 1;
+		map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(fullControlDiv);
 		
+		var incrementRiderDiv = document.createElement('div');
+		var incrementRider = new IncrementRiderControl(incrementRiderDiv, map);
+		incrementRiderDiv.index = 1;
+		map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(incrementRiderDiv);
+		
+		var decrementRiderDiv = document.createElement('div');
+		var decrementRider = new DecrementRiderControl(decrementRiderDiv, map);
+		decrementRiderDiv.index = 2;
+		map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(decrementRiderDiv);
+		
+		var totalDiv = document.createElement('div');
+		var totalRiderControl = new RiderTotalsView(totalDiv, map);
+		totalDiv.index = 1;
+		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(totalDiv);
+  
 		google.maps.event.addListener(map, 'zoom_changed', function() {
      if (map.getZoom() < 16) map.setZoom(16);
    });
@@ -275,8 +288,152 @@ angular.module('starter.controllers', [])
 		});   
   }
 
-	  /*Last line of code from my things*/
-      google.maps.event.addDomListener(window, 'load', initialize);
+  function toggleFull() {
+	full = !full;
+	if (full) {
+		fullUI.style.backgroundColor='#FFFF00';		
+	} else {
+		fullUI.style.backgroundColor='#008000';	
+	}
+  
+  }
+  function FullControl(controlDiv, map) {
+
+	  // Set CSS styles for the DIV containing the control
+	  // Setting padding to 5 px will offset the control
+	  // from the edge of the map.
+	  controlDiv.style.padding = '5px';
+
+	  // Set CSS for the control border.
+	  fullUI = document.createElement('div');
+	  fullUI.style.backgroundColor = '#008000';
+	  fullUI.style.borderStyle = 'solid';
+	  fullUI.style.borderWidth = '2px';
+	  fullUI.style.cursor = 'pointer';
+	  fullUI.style.textAlign = 'center';
+	  fullUI.title = 'Click to set the map to Home';
+	  controlDiv.appendChild(fullUI);
+
+	  // Set CSS for the control interior.
+	  var controlText = document.createElement('div');
+	  controlText.style.fontFamily = 'Arial,sans-serif';
+	  controlText.style.fontSize = '12px';
+	  controlText.style.paddingLeft = '4px';
+	  controlText.style.paddingRight = '4px';
+	  controlText.innerHTML = '<strong>Full Cab Toggle</strong>';
+	  fullUI.appendChild(controlText);
+
+	  // Setup the click event listeners: simply set the map to Chicago.
+	  google.maps.event.addDomListener(fullUI, 'click', function() {
+		toggleFull();
+		});
+	}
+	
+	function incrementRiders() {
+		totalRiders++;	
+		totalText.innerHTML = '<strong>Passengers: ' + totalRiders + '</strong>';
+	}
+	function decrementRiders() {
+		if (totalRiders > 0) {
+			totalRiders--;	
+		}
+		totalText.innerHTML = '<strong>Passengers: ' + totalRiders + '</strong>';
+	}
+	function IncrementRiderControl(controlDiv, map) {
+
+	  // Set CSS styles for the DIV containing the control
+	  // Setting padding to 5 px will offset the control
+	  // from the edge of the map.
+	  controlDiv.style.padding = '5px';
+
+	  // Set CSS for the control border.
+	  var incrementUI = document.createElement('div');
+	  incrementUI.style.backgroundColor = 'white';
+	  incrementUI.style.borderStyle = 'solid';
+	  incrementUI.style.borderWidth = '2px';
+	  incrementUI.style.cursor = 'pointer';
+	  incrementUI.style.textAlign = 'center';
+	  incrementUI.title = 'Click to set the map to Home';
+	  controlDiv.appendChild(incrementUI);
+
+	  // Set CSS for the control interior.
+	  var controlText = document.createElement('div');
+	  controlText.style.fontFamily = 'Arial,sans-serif';
+	  controlText.style.fontSize = '12px';
+	  controlText.style.paddingLeft = '4px';
+	  controlText.style.paddingRight = '4px';
+	  controlText.innerHTML = '<strong>+Rider</strong>';
+	  incrementUI.appendChild(controlText);
+
+	  // Setup the click event listeners: simply set the map to Chicago.
+	  google.maps.event.addDomListener(incrementUI, 'click', function() {
+		incrementRiders();
+		});
+	}
+	function DecrementRiderControl(controlDiv, map) {
+
+	  // Set CSS styles for the DIV containing the control
+	  // Setting padding to 5 px will offset the control
+	  // from the edge of the map.
+	  controlDiv.style.padding = '5px';
+
+	  // Set CSS for the control border.
+	  var incrementUI = document.createElement('div');
+	  incrementUI.style.backgroundColor = 'white';
+	  incrementUI.style.borderStyle = 'solid';
+	  incrementUI.style.borderWidth = '2px';
+	  incrementUI.style.cursor = 'pointer';
+	  incrementUI.style.textAlign = 'center';
+	  incrementUI.title = 'Click to set the map to Home';
+	  controlDiv.appendChild(incrementUI);
+
+	  // Set CSS for the control interior.
+	  var controlText = document.createElement('div');
+	  controlText.style.fontFamily = 'Arial,sans-serif';
+	  controlText.style.fontSize = '12px';
+	  controlText.style.paddingLeft = '4px';
+	  controlText.style.paddingRight = '4px';
+	  controlText.innerHTML = '<strong>-Rider</strong>';
+	  incrementUI.appendChild(controlText);
+
+	  // Setup the click event listeners: simply set the map to Chicago.
+	  google.maps.event.addDomListener(incrementUI, 'click', function() {
+		decrementRiders();
+		});
+	}
+	
+	function RiderTotalsView(controlDiv, map) {
+
+	  // Set CSS styles for the DIV containing the control
+	  // Setting padding to 5 px will offset the control
+	  // from the edge of the map.
+	  controlDiv.style.padding = '5px';
+
+	  // Set CSS for the control border.
+	  var incrementUI = document.createElement('div');
+	  incrementUI.style.backgroundColor = 'white';
+	  incrementUI.style.borderStyle = 'solid';
+	  incrementUI.style.borderWidth = '2px';
+	  incrementUI.style.cursor = 'pointer';
+	  incrementUI.style.textAlign = 'center';
+	  incrementUI.title = 'Click to set the map to Home';
+	  controlDiv.appendChild(incrementUI);
+
+	  // Set CSS for the control interior.
+	  totalText = document.createElement('div');
+	  totalText.style.fontFamily = 'Arial,sans-serif';
+	  totalText.style.fontSize = '12px';
+	  totalText.style.paddingLeft = '4px';
+	  totalText.style.paddingRight = '4px';
+	  totalText.innerHTML = '<strong>Passengers: ' + totalRiders + '</strong>';
+	  incrementUI.appendChild(totalText);
+
+	  // Setup the click event listeners: simply set the map to Chicago.
+
+	}
+	  /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/
+	  initialize();
+      //google.maps.event.addDomListener(window, 'load', initialize);
 	/*Everything after here was from example code (http://paulsutherland.net/ionic-and-google-maps-api/. 
 		I don't know how these affect the app*/
       $scope.centerOnMe = function() {
