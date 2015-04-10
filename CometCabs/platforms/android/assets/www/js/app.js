@@ -212,7 +212,7 @@ angular.module('starter', ['ionic'])
 		{
 			"latitude": 32.986498,
 			"longitude": -96.751010,
-			"isFull": false,
+			"isFull": true,
 			"onDuty": true
 		},
 		{

@@ -74,10 +74,12 @@ angular.module('starter.controllers', [])
 		} else {
 			alert("Geolocation is not supported by this browser.");
 		}
+		//Refer to https://developers.google.com/maps/documentation/javascript/controls 
+		//for info on control positioning
 		var fullControlDiv = document.createElement('div');		
 		fullControl = new FullControl(fullControlDiv, map);
 		fullControlDiv.index = 1;
-		map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(fullControlDiv);
+		map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(fullControlDiv);
 		
 		var incrementRiderDiv = document.createElement('div');
 		var incrementRider = new IncrementRiderControl(incrementRiderDiv, map);
@@ -92,10 +94,10 @@ angular.module('starter.controllers', [])
 		var totalDiv = document.createElement('div');
 		var totalRiderControl = new RiderTotalsView(totalDiv, map);
 		totalDiv.index = 1;
-		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(totalDiv);
+		map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(totalDiv);
   
 		google.maps.event.addListener(map, 'zoom_changed', function() {
-     if (map.getZoom() < 16) map.setZoom(16);
+     if (map.getZoom() < 15) map.setZoom(15);
    });
        
   }
@@ -300,7 +302,6 @@ angular.module('starter.controllers', [])
   }
 
   function toggleFull() {
-	getRouteJSON();
 	full = !full;
 	if (full) {
 		fullUI.style.backgroundColor='#FFFF00';		
@@ -378,9 +379,15 @@ angular.module('starter.controllers', [])
 	  incrementUI.appendChild(controlText);
 
 	  // Setup the click event listeners: simply set the map to Chicago.
-	  google.maps.event.addDomListener(incrementUI, 'click', function() {
+
+	google.maps.event.addDomListener(incrementUI, 'touchstart', function() {
+		incrementUI.style.backgroundColor = '#FFFF00';
+		});
+	google.maps.event.addDomListener(incrementUI, 'touchend', function() {
+		incrementUI.style.backgroundColor = 'white';
 		incrementRiders();
 		});
+
 	}
 	function DecrementRiderControl(controlDiv, map) {
 
@@ -409,7 +416,12 @@ angular.module('starter.controllers', [])
 	  incrementUI.appendChild(controlText);
 
 	  // Setup the click event listeners: simply set the map to Chicago.
-	  google.maps.event.addDomListener(incrementUI, 'click', function() {
+
+	google.maps.event.addDomListener(incrementUI, 'touchstart', function() {
+		incrementUI.style.backgroundColor = '#FFFF00';
+		});
+		google.maps.event.addDomListener(incrementUI, 'touchend', function() {
+		incrementUI.style.backgroundColor = 'white';
 		decrementRiders();
 		});
 	}
