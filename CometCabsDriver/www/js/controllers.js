@@ -99,7 +99,18 @@ angular.module('starter.controllers', [])
    });
        
   }
+  function getRouteJSON() {
+	$.ajax({
+		type: 'Get',
+		url: 'http://cometcabsservices.azurewebsites.net/CometCabsServices.svc/basic/GetRouteData',
+		success: function() {
+			alert("Success!");
+		}
+    });
   
+  
+  
+  }
   function setRouteCoordinates() {
 	/*
 		The JSON for routes:
@@ -289,6 +300,7 @@ angular.module('starter.controllers', [])
   }
 
   function toggleFull() {
+	getRouteJSON();
 	full = !full;
 	if (full) {
 		fullUI.style.backgroundColor='#FFFF00';		

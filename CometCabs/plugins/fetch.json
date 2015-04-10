@@ -16,5 +16,11 @@
             "type": "registry",
             "id": "com.ionic.keyboard"
         }
+    },
+    "com.megster.cordova.bluetoothserial": {
+        "source": {
+            "type": "registry",
+            "id": "com.megster.cordova.bluetoothserial"
+        }
     }
 }
