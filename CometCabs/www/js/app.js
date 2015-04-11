@@ -22,7 +22,6 @@ angular.module('starter', ['ionic'])
 	var phase1SouthMarker;
 	
 	var map;
-    var routesJSON;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
@@ -36,8 +35,6 @@ angular.module('starter', ['ionic'])
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
-        
-        //routesJSON = makeCorsRequest();
         
         setRouteCoordinates(); //Sets the details for routes
 		setCabMarkers();
@@ -57,64 +54,32 @@ angular.module('starter', ['ionic'])
 		}
 		
 		google.maps.event.addListener(map, 'zoom_changed', function() {
-		setRouteCoordinates();
-     //if (map.getZoom() < 16) map.setZoom(16);
+     if (map.getZoom() < 16) map.setZoom(16);
    });
        
   }
-        // *********REQUEST CODE***************
-        function createCORSRequest(method, url) {
-            var xhr = new XMLHttpRequest();			
-            if ("withCredentials" in xhr) {
-				// XHR for Chrome/Firefox/Opera/Safari.
-                xhr.open(method, url, true);
-				
-            } else if (typeof XDomainRequest != "undefined") {
-                // XDomainRequest for IE.
-                xhr = new XDomainRequest();
-                xhr.open(method, url);
-            } else {
-                // CORS not supported.
-                xhr = null;
-            }
-			
-            return xhr;    
+
+    function createCORSRequest(method, url) {
+        var xhr = new XMLHttpRequest();
+        if ("withCredentials" in xhr) {
+            // XHR for Chrome/Firefox/Opera/Safari.
+            xhr.open(method, url, true);
+        } else if (typeof XDomainRequest != "undefined") {
+            // XDomainRequest for IE.
+            xhr = new XDomainRequest();
+            xhr.open(method, url);
+        } else {
+            // CORS not supported.
+            xhr = null;
         }
-    
-        //separate function: not using right now... Code is duplicated in setRouteCoordinates
-       /*  function makeCorsRequest() {
-            // All HTML5 Rocks properties support CORS.
-            var url = 'http://cometcabs.azurewebsites.net//api/Routes';
- 
-            var xhr = createCORSRequest('POST', url);
- 
-            if (!xhr) {
-                alert('CORS not supported');
-                return;
-            }
- 
-            // Response handlers.
-            xhr.onload = function () {
-                var text = xhr.responseText;
- 
-                //alert(text);
-            };
- 
-            xhr.onerror = function () {
-                alert('Error making the request.');
-            };
- 
-            xhr.send();
-            return xhr.responseText;
-        } */
-        // *********REQUEST CODE***************
+        return xhr;    
+    }
     
   function setRouteCoordinates() {
-            // *********REQUEST CODE***************
             var url = 'http://cometcabs.azurewebsites.net//api/Routes';
  
             var xhr = createCORSRequest('POST', url);
-			
+ 
             if (!xhr) {
                 alert('CORS not supported');
                 return;
@@ -122,16 +87,17 @@ angular.module('starter', ['ionic'])
  
             // Response handlers.
             xhr.onload = function () {
-                //var routes = JSON.parse(xhr.responseText);
-                //var routes = xhr.responseText;
-                var routes = [xhr.responseText];
-				var parseRoutes = JSON.parse(routes);
-				alert(parseRoutes.RouteCoordinates[0][0].k);
-                //alert(routes[0].RouteCoordinates[0]);
-
-                for (i = 0; i < routes.length; i++) {
-                    //setRouteFromJSON(routes[i]);
+                var routes = JSON.parse(xhr.responseText);
+                
+                for (i = 0; i < routes.RouteCoordinates.length; i++) {
+                    var routeID = routes.RouteCoordinates[i][0].RouteId;
+                    for (j = 0; j < routes.RouteTable.length; j++) {
+                        if (routes.RouteTable[j].Id == routeID) {
+                            setRouteFromJSON(routes.RouteCoordinates[i], routes.RouteTable[j].RouteColor);
+                        }
+                    }
                 }
+                
             };
  
             xhr.onerror = function () {
@@ -139,125 +105,18 @@ angular.module('starter', ['ionic'])
             };
  
             xhr.send();
-      // *********REQUEST CODE***************
-      
-      /*
-		The JSON for routes:
-		var jsonRoute = {
-			"name": <string>,
-			"color": <in the form #000000>,
-			[
-			{"latitude": <double>, "longitude": <double> } ]
-		}	
-			With two or more points in the array.	
-	*/
-	
-	/*var routes = [
-		{
-			"name": "McDermott",
-			"color": '#003986',
-			"path": [
-				{"latitude": 32.990034, "longitude": -96.744273},
-				{"latitude": 32.989341, "longitude": -96.745367},
-				{"latitude": 32.988540, "longitude": -96.745046},
-				{"latitude": 32.987919, "longitude": -96.746194},
-				{"latitude": 32.987982, "longitude": -96.746966},
-				{"latitude": 32.987361, "longitude": -96.747020},
-				{"latitude": 32.987487, "longitude": -96.746172},
-				{"latitude": 32.984653, "longitude": -96.745990},
-				{"latitude": 32.984635, "longitude": -96.745367},
-				{"latitude": 32.985616, "longitude": -96.745325},
-				{"latitude": 32.985616, "longitude": -96.745958},
-				{"latitude": 32.987829, "longitude": -96.746204},
-				{"latitude": 32.988405, "longitude": -96.744938},			
-				{"latitude": 32.988747, "longitude": -96.745046},			
-				{"latitude": 32.989359, "longitude": -96.743908},		
-				{"latitude": 32.990034, "longitude": -96.744273}			
-			]
-		},
-		{
-			"name": "Commons",
-			"color": '#9978c8',
-			"path": [
-				{"latitude":32.985645, "longitude": -96.74914},		
-				{"latitude":32.985666, "longitude": -96.750987},
-				{"latitude":32.990643, "longitude": -96.750946},
-				{"latitude":32.990721, "longitude": -96.753669},
-				{"latitude":32.991789, "longitude": -96.753631},
-				{"latitude":32.991789, "longitude": -96.752607},
-				{"latitude":32.990734, "longitude": -96.752620},
-				{"latitude":32.990721, "longitude": -96.750949},
-				{"latitude":32.990643, "longitude": -96.750946}				
-			]
-		},
-		{
-			"name": "Phase 1 North",
-			"color": '#FF9900',
-			"path": [
-				{"latitude":32.985645, "longitude":-96.74914},			
-				{"latitude":32.985668, "longitude":-96.754610},
-				{"latitude":32.985850, "longitude":-96.754610},
-				{"latitude":32.985864, "longitude":-96.753907},
-				{"latitude":32.986955, "longitude":-96.753751},
-				{"latitude":32.987130, "longitude":-96.753778},
-				{"latitude":32.987124, "longitude":-96.753910},
-				{"latitude":32.988195, "longitude":-96.753947},
-				{"latitude":32.988219, "longitude":-96.755001},
-				{"latitude":32.988388, "longitude":-96.755001},
-				{"latitude":32.988368, "longitude":-96.753725},
-				{"latitude":32.985668, "longitude":-96.753741}			
-			]
-		},
-		{
-			"name": "Phase 1 South",
-			"color": '#FF33FF',
-			"path": [
-				{"latitude":32.985647, "longitude":-96.74914},			
-				{"latitude":32.985672, "longitude":-96.754277},
-				{"latitude":32.985456, "longitude":-96.754309},
-				{"latitude":32.985035, "longitude":-96.753988},
-				{"latitude":32.983748, "longitude":-96.754399},
-				{"latitude":32.983750, "longitude":-96.755866},
-				{"latitude":32.985345, "longitude":-96.755054},
-				{"latitude":32.985664, "longitude":-96.755254},
-				{"latitude":32.985672, "longitude":-96.754277}			
-			]
-		},
-		{
-			"name": "Rutford Rd",
-			"color": '#005710',
-			"path": [
-				{"latitude":32.981273, "longitude":-96.750881},
-				{"latitude":32.981273, "longitude":-96.750190},
-				{"latitude":32.980547, "longitude":-96.750190},
-				{"latitude":32.980504, "longitude":-96.750881},
-				{"latitude":32.98422, "longitude":-96.751053},
-				{"latitude":32.992023, "longitude":-96.750967},
-				{"latitude":32.992068, "longitude":-96.752984},
-				{"latitude":32.992768, "longitude":-96.753057},
-				{"latitude":32.992757, "longitude":-96.751475},
-				{"latitude":32.992068, "longitude":-96.751461}	
-			]
-		}
-	];*/
-
-      /*var routes = xhr.responseText;
-        for (i = 0; i < routes.length; i++) {
-            alert(routes.RouteCoordinates[i])
-            setRouteFromJSON(routes[i]);
-	   }*/
 	
   }
   
-    function setRouteFromJSON(route) {
+    function setRouteFromJSON(route, color) {
         var routePath = [];
-        for (j = 0; j < route.path.length; j++) {
-            routePath.push(new google.maps.LatLng(route.path[j].latitude, route.path[j].longitude));
+        for (j = 0; j < route.length; j++) {
+            routePath.push(new google.maps.LatLng(route[j].k, route[j].D));
         }
         var routeLine = new google.maps.Polyline({
             path: routePath,
             geodesic: true,
-            strokeColor: route.color,
+            strokeColor: color,
             strokeOpacity: 1.0,
             strokeWeight: 2.5,
             map: map
@@ -332,7 +191,6 @@ angular.module('starter', ['ionic'])
 
 	  /*Last line of code from my things*/
       google.maps.event.addDomListener(window, 'load', initialize);
-	  
 	/*Everything after here was from example code (http://paulsutherland.net/ionic-and-google-maps-api/. 
 		I don't know how these affect the app*/
       $scope.centerOnMe = function() {
@@ -357,4 +215,3 @@ angular.module('starter', ['ionic'])
       };
       
     });
-
