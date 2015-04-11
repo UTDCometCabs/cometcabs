@@ -1,12 +1,36 @@
 <ion-view view-title="Comet Cabs Driver" name="login-view">
-  <ion-content class="padding">
-      <div class="list list-inset">
-          <label class="item item-input">
-              <input type="text" placeholder="Username" ng-model="data.username">
-          </label>
-          <label class="item item-input">
-              <input type="password" placeholder="Password" ng-model="data.password">
-          </label>
+	<ion-content class="padding">
+		<div class="list list-inset">
+			<label class="item item-input">
+				<input type="text" placeholder="Username" ng-model="data.username">
+			</label>
+			<label class="item item-input">
+				<input type="password" placeholder="Password" ng-model="data.password">
+			</label>
+		</div>
+		<div>
+			<label class="item item-input item-select">
+				<div class="input-label">
+					Route
+				</div>
+				<select>
+					<option selected>Route 1</option>
+					<option>Route 2</option>
+					<option>Route 3</option>
+				</select>
+			</label>
+      </div>
+	  <div>
+			<label class="item item-input item-select">
+				<div class="input-label">
+					Cab ID
+				</div>
+				<select>
+					<option selected>Cab 1</option>
+					<option>Cab 2</option>
+					<option>Cab 3</option>
+				</select>
+			</label>
       </div>
       <button class="button button-block button-dark" ng-click="login()">Login</button>
   </ion-content>

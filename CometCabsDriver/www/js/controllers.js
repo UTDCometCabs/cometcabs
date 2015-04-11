@@ -304,9 +304,13 @@ angular.module('starter.controllers', [])
   function toggleFull() {
 	full = !full;
 	if (full) {
-		fullUI.style.backgroundColor='#FFFF00';		
+		// fullUI.style.backgroundColor='#FFFF00';
+		fullUI.style.background = 'rgb(255,255,0)'; /* Old browser support */
+		fullUI.style.background = 'rgba(255,255,0,0.5)';
 	} else {
-		fullUI.style.backgroundColor='#008000';	
+		// fullUI.style.backgroundColor='#008000';	
+		fullUI.style.background = 'rgb(0,128,0)'; /* Old browser support */
+		fullUI.style.background = 'rgba(0,128,0,0.5)';
 	}
   
   }
@@ -319,7 +323,9 @@ angular.module('starter.controllers', [])
 
 	  // Set CSS for the control border.
 	  fullUI = document.createElement('div');
-	  fullUI.style.backgroundColor = '#008000';
+	  // fullUI.style.backgroundColor = '#008000';
+	  fullUI.style.background = 'rgb(0,128,0)'; /* Old browser support */
+	  fullUI.style.background = 'rgba(0,128,0, 0.5)';
 	  fullUI.style.borderStyle = 'solid';
 	  fullUI.style.borderWidth = '2px';
 	  fullUI.style.cursor = 'pointer';
@@ -361,7 +367,9 @@ angular.module('starter.controllers', [])
 
 	  // Set CSS for the control border.
 	  var incrementUI = document.createElement('div');
-	  incrementUI.style.backgroundColor = 'white';
+	  // incrementUI.style.backgroundColor = 'white';
+	  incrementUI.style.background = 'rgb(255,255,255)'; /* Old browser support */
+	  incrementUI.style.background = 'rgba(255,255,255, 0.5)';
 	  incrementUI.style.borderStyle = 'solid';
 	  incrementUI.style.borderWidth = '2px';
 	  incrementUI.style.cursor = 'pointer';
@@ -372,9 +380,11 @@ angular.module('starter.controllers', [])
 	  // Set CSS for the control interior.
 	  var controlText = document.createElement('div');
 	  controlText.style.fontFamily = 'Arial,sans-serif';
-	  controlText.style.fontSize = '12px';
+	  controlText.style.fontSize = '24px';
 	  controlText.style.paddingLeft = '4px';
 	  controlText.style.paddingRight = '4px';
+	  controlText.style.paddingTop = '4px';
+	  controlText.style.paddingBottom = '4px';
 	  controlText.innerHTML = '<strong>+Rider</strong>';
 	  incrementUI.appendChild(controlText);
 
@@ -398,7 +408,9 @@ angular.module('starter.controllers', [])
 
 	  // Set CSS for the control border.
 	  var incrementUI = document.createElement('div');
-	  incrementUI.style.backgroundColor = 'white';
+	  // incrementUI.style.backgroundColor = 'white';
+	  incrementUI.style.background = 'rgb(255,255,255)'; /* Old browser support */
+	  incrementUI.style.background = 'rgba(255,255,255, 0.5)';
 	  incrementUI.style.borderStyle = 'solid';
 	  incrementUI.style.borderWidth = '2px';
 	  incrementUI.style.cursor = 'pointer';
@@ -409,9 +421,11 @@ angular.module('starter.controllers', [])
 	  // Set CSS for the control interior.
 	  var controlText = document.createElement('div');
 	  controlText.style.fontFamily = 'Arial,sans-serif';
-	  controlText.style.fontSize = '12px';
+	  controlText.style.fontSize = '24px';
 	  controlText.style.paddingLeft = '4px';
 	  controlText.style.paddingRight = '4px';
+	  controlText.style.paddingTop = '4px';
+	  controlText.style.paddingBottom = '4px';
 	  controlText.innerHTML = '<strong>-Rider</strong>';
 	  incrementUI.appendChild(controlText);
 
@@ -435,7 +449,9 @@ angular.module('starter.controllers', [])
 
 	  // Set CSS for the control border.
 	  var incrementUI = document.createElement('div');
-	  incrementUI.style.backgroundColor = 'white';
+	  // incrementUI.style.backgroundColor = 'white';
+	  incrementUI.style.background = 'rgb(255,255,255)'; /* Old browser support */
+	  incrementUI.style.background = 'rgba(255,254,255, 0.5)';
 	  incrementUI.style.borderStyle = 'solid';
 	  incrementUI.style.borderWidth = '2px';
 	  incrementUI.style.cursor = 'pointer';
