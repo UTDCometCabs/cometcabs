@@ -22,6 +22,7 @@ angular.module('starter', ['ionic'])
 	var phase1SouthMarker;
 	
 	var map;
+    var routesJSON;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
@@ -35,6 +36,9 @@ angular.module('starter', ['ionic'])
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
+        
+        //routesJSON = makeCorsRequest();
+        
         setRouteCoordinates(); //Sets the details for routes
 		setCabMarkers();
 		
@@ -53,13 +57,91 @@ angular.module('starter', ['ionic'])
 		}
 		
 		google.maps.event.addListener(map, 'zoom_changed', function() {
-     if (map.getZoom() < 16) map.setZoom(16);
+		setRouteCoordinates();
+     //if (map.getZoom() < 16) map.setZoom(16);
    });
        
   }
-  
+        // *********REQUEST CODE***************
+        function createCORSRequest(method, url) {
+            var xhr = new XMLHttpRequest();			
+            if ("withCredentials" in xhr) {
+				// XHR for Chrome/Firefox/Opera/Safari.
+                xhr.open(method, url, true);
+				
+            } else if (typeof XDomainRequest != "undefined") {
+                // XDomainRequest for IE.
+                xhr = new XDomainRequest();
+                xhr.open(method, url);
+            } else {
+                // CORS not supported.
+                xhr = null;
+            }
+			
+            return xhr;    
+        }
+    
+        //separate function: not using right now... Code is duplicated in setRouteCoordinates
+       /*  function makeCorsRequest() {
+            // All HTML5 Rocks properties support CORS.
+            var url = 'http://cometcabs.azurewebsites.net//api/Routes';
+ 
+            var xhr = createCORSRequest('POST', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var text = xhr.responseText;
+ 
+                //alert(text);
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+            return xhr.responseText;
+        } */
+        // *********REQUEST CODE***************
+    
   function setRouteCoordinates() {
-	/*
+            // *********REQUEST CODE***************
+            var url = 'http://cometcabs.azurewebsites.net//api/Routes';
+ 
+            var xhr = createCORSRequest('POST', url);
+			
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                //var routes = JSON.parse(xhr.responseText);
+                //var routes = xhr.responseText;
+                var routes = [xhr.responseText];
+				var parseRoutes = JSON.parse(routes);
+				alert(parseRoutes.RouteCoordinates[0][0].k);
+                //alert(routes[0].RouteCoordinates[0]);
+
+                for (i = 0; i < routes.length; i++) {
+                    //setRouteFromJSON(routes[i]);
+                }
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+      // *********REQUEST CODE***************
+      
+      /*
 		The JSON for routes:
 		var jsonRoute = {
 			"name": <string>,
@@ -70,7 +152,7 @@ angular.module('starter', ['ionic'])
 			With two or more points in the array.	
 	*/
 	
-	var routes = [
+	/*var routes = [
 		{
 			"name": "McDermott",
 			"color": '#003986',
@@ -157,27 +239,29 @@ angular.module('starter', ['ionic'])
 				{"latitude":32.992068, "longitude":-96.751461}	
 			]
 		}
-	];
+	];*/
 
-		
-	for (i = 0; i < routes.length; i++) {
-		setRouteFromJSON(routes[i]);
-	}
+      /*var routes = xhr.responseText;
+        for (i = 0; i < routes.length; i++) {
+            alert(routes.RouteCoordinates[i])
+            setRouteFromJSON(routes[i]);
+	   }*/
 	
   }
-  function setRouteFromJSON(route) {
-	var routePath = [];
-	for (j = 0; j < route.path.length; j++) {
-		routePath.push(new google.maps.LatLng(route.path[j].latitude, route.path[j].longitude));
-	}
-	var routeLine = new google.maps.Polyline({
-		path: routePath,
-		geodesic: true,
-		strokeColor: route.color,
-		strokeOpacity: 1.0,
-		strokeWeight: 2.5,
-		map: map
-	});
+  
+    function setRouteFromJSON(route) {
+        var routePath = [];
+        for (j = 0; j < route.path.length; j++) {
+            routePath.push(new google.maps.LatLng(route.path[j].latitude, route.path[j].longitude));
+        }
+        var routeLine = new google.maps.Polyline({
+            path: routePath,
+            geodesic: true,
+            strokeColor: route.color,
+            strokeOpacity: 1.0,
+            strokeWeight: 2.5,
+            map: map
+        });
 	
   }
 
@@ -248,6 +332,7 @@ angular.module('starter', ['ionic'])
 
 	  /*Last line of code from my things*/
       google.maps.event.addDomListener(window, 'load', initialize);
+	  
 	/*Everything after here was from example code (http://paulsutherland.net/ionic-and-google-maps-api/. 
 		I don't know how these affect the app*/
       $scope.centerOnMe = function() {
