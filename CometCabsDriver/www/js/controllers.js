@@ -394,7 +394,9 @@ angular.module('starter.controllers', [])
 		incrementUI.style.backgroundColor = '#FFFF00';
 		});
 	google.maps.event.addDomListener(incrementUI, 'touchend', function() {
-		incrementUI.style.backgroundColor = 'white';
+		// incrementUI.style.backgroundColor = 'white';
+		incrementUI.style.background = 'rgb(255,255,255)'; /* Old browser support */
+		incrementUI.style.background = 'rgba(255,255,255, 0.5)';
 		incrementRiders();
 		});
 
@@ -435,7 +437,9 @@ angular.module('starter.controllers', [])
 		incrementUI.style.backgroundColor = '#FFFF00';
 		});
 		google.maps.event.addDomListener(incrementUI, 'touchend', function() {
-		incrementUI.style.backgroundColor = 'white';
+		// incrementUI.style.backgroundColor = 'white';
+		incrementUI.style.background = 'rgb(255,255,255)'; /* Old browser support */
+		incrementUI.style.background = 'rgba(255,255,255, 0.5)';
 		decrementRiders();
 		});
 	}
