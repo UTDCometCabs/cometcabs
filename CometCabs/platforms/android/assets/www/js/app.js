@@ -188,6 +188,17 @@ angular.module('starter', ['ionic'])
 		}		
 		});   
   }
+  
+	$scope.iWantToRide = function() {
+		var btn = document.getElementById("iWantToRideButton");
+		var activeColor = 'green';
+		
+		if(btn.style.color != activeColor) {
+			btn.style.color = activeColor;
+		} else {
+			btn.style.color = 'white';
+		}
+	};
 
 	  /*Last line of code from my things*/
       google.maps.event.addDomListener(window, 'load', initialize);
