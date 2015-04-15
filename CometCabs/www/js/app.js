@@ -76,9 +76,19 @@ angular.module('starter', ['ionic'])
     }
     
   function setRouteCoordinates() {
-            var url = 'http://cometcabs.azurewebsites.net//api/Routes';
+      /*
+		The JSON for routes:
+		var jsonRoute = {
+			"name": <string>,
+			"color": <in the form #000000>,
+			[
+			{"latitude": <double>, "longitude": <double> } ]
+		}	
+			With two or more points in the array.	
+	*/
+            var url = 'http://cometcabs.azurewebsites.net/api/routes';
  
-            var xhr = createCORSRequest('POST', url);
+            var xhr = createCORSRequest('GET', url);
  
             if (!xhr) {
                 alert('CORS not supported');
@@ -88,14 +98,8 @@ angular.module('starter', ['ionic'])
             // Response handlers.
             xhr.onload = function () {
                 var routes = JSON.parse(xhr.responseText);
-                
-                for (i = 0; i < routes.RouteCoordinates.length; i++) {
-                    var routeID = routes.RouteCoordinates[i][0].RouteId;
-                    for (j = 0; j < routes.RouteTable.length; j++) {
-                        if (routes.RouteTable[j].Id == routeID) {
-                            setRouteFromJSON(routes.RouteCoordinates[i], routes.RouteTable[j].RouteColor);
-                        }
-                    }
+                for (i = 0; i < routes.length; i++) {
+                    setRouteFromJSON(routes[i]);
                 }
                 
             };
@@ -110,20 +114,19 @@ angular.module('starter', ['ionic'])
   
     function setRouteFromJSON(route, color) {
         var routePath = [];
-        for (j = 0; j < route.length; j++) {
-            routePath.push(new google.maps.LatLng(route[j].k, route[j].D));
+        for (j = 0; j < route.Path.length; j++) {
+            routePath.push(new google.maps.LatLng(route.Path[j].Latitude, route.Path[j].Longitude));
         }
         var routeLine = new google.maps.Polyline({
             path: routePath,
             geodesic: true,
-            strokeColor: color,
+            strokeColor: route.Color,
             strokeOpacity: 1.0,
             strokeWeight: 2.5,
             map: map
         });
 	
   }
-
 
   function setCabColor(isFull, onDuty) {
 	var color = "#008000" ;

@@ -101,20 +101,24 @@ angular.module('starter.controllers', [])
    });
        
   }
-  function getRouteJSON() {
-	$.ajax({
-		type: 'Get',
-		url: 'http://cometcabsservices.azurewebsites.net/CometCabsServices.svc/basic/GetRouteData',
-		success: function() {
-			alert("Success!");
-		}
-    });
-  
-  
-  
-  }
+  function createCORSRequest(method, url) {
+        var xhr = new XMLHttpRequest();
+        if ("withCredentials" in xhr) {
+            // XHR for Chrome/Firefox/Opera/Safari.
+            xhr.open(method, url, true);
+        } else if (typeof XDomainRequest != "undefined") {
+            // XDomainRequest for IE.
+            xhr = new XDomainRequest();
+            xhr.open(method, url);
+        } else {
+            // CORS not supported.
+            xhr = null;
+        }
+        return xhr;    
+    }
+    
   function setRouteCoordinates() {
-	/*
+      /*
 		The JSON for routes:
 		var jsonRoute = {
 			"name": <string>,
@@ -124,115 +128,45 @@ angular.module('starter.controllers', [])
 		}	
 			With two or more points in the array.	
 	*/
-	
-	var routes = [
-		{
-			"name": "McDermott",
-			"color": '#003986',
-			"path": [
-				{"latitude": 32.990034, "longitude": -96.744273},
-				{"latitude": 32.989341, "longitude": -96.745367},
-				{"latitude": 32.988540, "longitude": -96.745046},
-				{"latitude": 32.987919, "longitude": -96.746194},
-				{"latitude": 32.987982, "longitude": -96.746966},
-				{"latitude": 32.987361, "longitude": -96.747020},
-				{"latitude": 32.987487, "longitude": -96.746172},
-				{"latitude": 32.984653, "longitude": -96.745990},
-				{"latitude": 32.984635, "longitude": -96.745367},
-				{"latitude": 32.985616, "longitude": -96.745325},
-				{"latitude": 32.985616, "longitude": -96.745958},
-				{"latitude": 32.987829, "longitude": -96.746204},
-				{"latitude": 32.988405, "longitude": -96.744938},			
-				{"latitude": 32.988747, "longitude": -96.745046},			
-				{"latitude": 32.989359, "longitude": -96.743908},		
-				{"latitude": 32.990034, "longitude": -96.744273}			
-			]
-		},
-		{
-			"name": "Commons",
-			"color": '#9978c8',
-			"path": [
-				{"latitude":32.985645, "longitude": -96.74914},		
-				{"latitude":32.985666, "longitude": -96.750987},
-				{"latitude":32.990643, "longitude": -96.750946},
-				{"latitude":32.990721, "longitude": -96.753669},
-				{"latitude":32.991789, "longitude": -96.753631},
-				{"latitude":32.991789, "longitude": -96.752607},
-				{"latitude":32.990734, "longitude": -96.752620},
-				{"latitude":32.990721, "longitude": -96.750949},
-				{"latitude":32.990643, "longitude": -96.750946}				
-			]
-		},
-		{
-			"name": "Phase 1 North",
-			"color": '#FF9900',
-			"path": [
-				{"latitude":32.985645, "longitude":-96.74914},			
-				{"latitude":32.985668, "longitude":-96.754610},
-				{"latitude":32.985850, "longitude":-96.754610},
-				{"latitude":32.985864, "longitude":-96.753907},
-				{"latitude":32.986955, "longitude":-96.753751},
-				{"latitude":32.987130, "longitude":-96.753778},
-				{"latitude":32.987124, "longitude":-96.753910},
-				{"latitude":32.988195, "longitude":-96.753947},
-				{"latitude":32.988219, "longitude":-96.755001},
-				{"latitude":32.988388, "longitude":-96.755001},
-				{"latitude":32.988368, "longitude":-96.753725},
-				{"latitude":32.985668, "longitude":-96.753741}			
-			]
-		},
-		{
-			"name": "Phase 1 South",
-			"color": '#FF33FF',
-			"path": [
-				{"latitude":32.985647, "longitude":-96.74914},			
-				{"latitude":32.985672, "longitude":-96.754277},
-				{"latitude":32.985456, "longitude":-96.754309},
-				{"latitude":32.985035, "longitude":-96.753988},
-				{"latitude":32.983748, "longitude":-96.754399},
-				{"latitude":32.983750, "longitude":-96.755866},
-				{"latitude":32.985345, "longitude":-96.755054},
-				{"latitude":32.985664, "longitude":-96.755254},
-				{"latitude":32.985672, "longitude":-96.754277}			
-			]
-		},
-		{
-			"name": "Rutford Rd",
-			"color": '#005710',
-			"path": [
-				{"latitude":32.981273, "longitude":-96.750881},
-				{"latitude":32.981273, "longitude":-96.750190},
-				{"latitude":32.980547, "longitude":-96.750190},
-				{"latitude":32.980504, "longitude":-96.750881},
-				{"latitude":32.98422, "longitude":-96.751053},
-				{"latitude":32.992023, "longitude":-96.750967},
-				{"latitude":32.992068, "longitude":-96.752984},
-				{"latitude":32.992768, "longitude":-96.753057},
-				{"latitude":32.992757, "longitude":-96.751475},
-				{"latitude":32.992068, "longitude":-96.751461}	
-			]
-		}
-	];
-
-		
-	for (i = 0; i < routes.length; i++) {
-		setRouteFromJSON(routes[i]);
-	}
+            var url = 'http://cometcabs.azurewebsites.net/api/routes';
+ 
+            var xhr = createCORSRequest('GET', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var routes = JSON.parse(xhr.responseText);
+                for (i = 0; i < routes.length; i++) {
+                    setRouteFromJSON(routes[i]);
+                }
+                
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
 	
   }
-  function setRouteFromJSON(route) {
-	var routePath = [];
-	for (j = 0; j < route.path.length; j++) {
-		routePath.push(new google.maps.LatLng(route.path[j].latitude, route.path[j].longitude));
-	}
-	var routeLine = new google.maps.Polyline({
-		path: routePath,
-		geodesic: true,
-		strokeColor: route.color,
-		strokeOpacity: 1.0,
-		strokeWeight: 2.5,
-		map: map
-	});
+  
+    function setRouteFromJSON(route, color) {
+        var routePath = [];
+        for (j = 0; j < route.Path.length; j++) {
+            routePath.push(new google.maps.LatLng(route.Path[j].Latitude, route.Path[j].Longitude));
+        }
+        var routeLine = new google.maps.Polyline({
+            path: routePath,
+            geodesic: true,
+            strokeColor: route.Color,
+            strokeOpacity: 1.0,
+            strokeWeight: 2.5,
+            map: map
+        });
 	
   }
 
