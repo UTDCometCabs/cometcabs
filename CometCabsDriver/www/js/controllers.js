@@ -40,6 +40,7 @@ angular.module('starter.controllers', [])
 	var phase1SouthMarker;
 	var chicago = new google.maps.LatLng(41.850033, -87.6500523);
 	var map;
+    var cabs = [];
 	var full;
 	var fullControl;
 	var fullUI;	
@@ -62,9 +63,9 @@ angular.module('starter.controllers', [])
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
         updateGPSLocation();
-        setRouteCoordinates(); //Sets the details for routes
-		setCabMarkers();
-		
+        //setRouteCoordinates(); //Sets the details for routes
+		//setCabMarkers();
+		setInterval(refresh, 1000);
         /*Sets a marker for the current position */
 		/*if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
@@ -276,8 +277,16 @@ angular.module('starter.controllers', [])
 		strokeWeight: 1.0,				
 		scale: 7 //pixels
 		}		
-		});   
+		});  
+      cabs.push(cab);
   }
+    
+    function removeCabs(){
+        for (i = 0; i< cabs.length; i++){
+            cabs[i].setMap(null);
+        }
+        cabs = [];
+    }
 
   function toggleFull() {
 	full = !full;
@@ -453,6 +462,12 @@ angular.module('starter.controllers', [])
 	  // Setup the click event listeners: simply set the map to Chicago.
 
 	}
+    function refresh() {
+        setRouteCoordinates(); //Sets the details for routes
+        removeCabs();
+		setCabMarkers();
+        updateGPSLocation();
+    }
 	  /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/
 	  initialize();
       //google.maps.event.addDomListener(window, 'load', initialize);
