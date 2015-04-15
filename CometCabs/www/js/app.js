@@ -20,7 +20,7 @@ angular.module('starter', ['ionic'])
 		
 	var rutfordMarker; 
 	var phase1SouthMarker;
-	
+	var cabs = [];
 	var map;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
@@ -36,9 +36,9 @@ angular.module('starter', ['ionic'])
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
         
-        setRouteCoordinates(); //Sets the details for routes
-		setCabMarkers();
-		
+        //setRouteCoordinates(); //Sets the details for routes
+		//setCabMarkers();
+		setInterval(refresh, 1000);
 		/*Sets a marker for the current position */
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
@@ -128,12 +128,12 @@ angular.module('starter', ['ionic'])
 	
   }
 
-  function setCabColor(isFull, onDuty) {
-	var color = "#008000" ;
-	if (isFull) {
+  function setCabColor(status) {
+	var color = "#008000" ; // == "onduty"
+	if (status == "full") {
 		color = "#FFFF00";
 	}
-	if (!onDuty) {
+	if (status == "offduty") {
 		color = "#FF0000";
 	}
 	return color;
@@ -147,50 +147,70 @@ angular.module('starter', ['ionic'])
 	
 	/* The JSON for these should be:
 		var jsonCab = {
-			"latitude": <double>
-			"longitude": <double>
-			"isFull": <true or false>
-			"onDuty": <true or false>		
+			"CabCode": Cab#
+			"RouteName": Name of Route
+			"Capacity": number
+			"CurrentStatus": full, onduty, offduty
+            "Longitude": <double>
+            "Latitude": <double>
 		}
 		
 	*/
-	var cabs = [
-		{
-			"latitude": 32.986498,
-			"longitude": -96.751010,
-			"isFull": true,
-			"onDuty": true
-		},
-		{
-			"latitude": 32.985672,
-			"longitude": -96.754399,
-			"isFull": false,
-			"onDuty": false
-		}	
-	
-	];
-	
-	for (i = 0; i < cabs.length; i++) {
-		drawCab(cabs[i].latitude, cabs[i].longitude, cabs[i].isFull, cabs[i].onDuty);
-	}
+	       var url = 'http://cometcabs.azurewebsites.net/api/CabActivity';
+ 
+            var xhr = createCORSRequest('GET', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var cabs = JSON.parse(xhr.responseText);
+                for (i = 0; i < cabs.length; i++) {
+                    drawCab(cabs[i]);
+                }
+                
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
 
   }
   
-  function drawCab(latitude, longitude, isFull, onDuty) {
+  function drawCab(cab) {
 	cab = new google.maps.Marker({
 		map: map,
-		position: new google.maps.LatLng(latitude, longitude),
+		position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
 		icon: {
 		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
 		fillOpacity: 1.0,
-		fillColor: setCabColor(isFull, onDuty),
+		fillColor: setCabColor(cab.Status),
 		strokeOpacity: 1.0,
-		strokeColor: setCabColor(isFull, onDuty),
+		strokeColor: setCabColor(cab.Status),
 		strokeWeight: 1.0,				
 		scale: 7 //pixels
 		}		
-		});   
+		});  
+      cabs.push(cab);
   }
+    
+    function removeCabs(){
+        for (i = 0; i< cabs.length; i++){
+            cabs[i].setMap(null);
+        }
+        cabs = [];
+    }
+    
+    function refresh() {
+        setRouteCoordinates(); //Sets the details for routes
+        removeCabs();
+		setCabMarkers();
+    }
   
 	$scope.iWantToRide = function() {
 		var btn = document.getElementById("iWantToRideButton");
