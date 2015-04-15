@@ -48,7 +48,10 @@ angular.module('starter.controllers', [])
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
-		full = false;
+        
+        //var site = new google.maps.LatLng(33.135307, -96.737604);
+		
+        full = false;
 		totalRiders = 0;
         var mapOptions = {
           streetViewControl:true,
@@ -58,11 +61,12 @@ angular.module('starter.controllers', [])
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
+        updateGPSLocation();
         setRouteCoordinates(); //Sets the details for routes
 		setCabMarkers();
 		
-		/*Sets a marker for the current position */
-		if (navigator.geolocation) {
+        /*Sets a marker for the current position */
+		/*if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			var marker = new google.maps.Marker({
@@ -73,7 +77,7 @@ angular.module('starter.controllers', [])
 			});
 		} else {
 			alert("Geolocation is not supported by this browser.");
-		}
+		}*/
 		//Refer to https://developers.google.com/maps/documentation/javascript/controls 
 		//for info on control positioning
 		var fullControlDiv = document.createElement('div');		
@@ -101,6 +105,7 @@ angular.module('starter.controllers', [])
    });
        
   }
+    
   function createCORSRequest(method, url) {
         var xhr = new XMLHttpRequest();
         if ("withCredentials" in xhr) {
@@ -115,6 +120,39 @@ angular.module('starter.controllers', [])
             xhr = null;
         }
         return xhr;    
+    }
+    
+    function updateGPSLocation() {
+        /*Sets a marker for the current position */
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+			//var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId=3&currentCapacity=2&currentStatus=On%20Duty&latitude=' + latitude + '&longitude=' + longitude;
+ 
+            var xhr = createCORSRequest('POST', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                //alert(xhr.responseText);
+                
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();		
+			});
+		} else {
+			alert("Geolocation is not supported by this browser.");
+		}
     }
     
   function setRouteCoordinates() {
@@ -154,7 +192,7 @@ angular.module('starter.controllers', [])
 	
   }
   
-    function setRouteFromJSON(route, color) {
+    function setRouteFromJSON(route) {
         var routePath = [];
         for (j = 0; j < route.Path.length; j++) {
             routePath.push(new google.maps.LatLng(route.Path[j].Latitude, route.Path[j].Longitude));
@@ -171,12 +209,12 @@ angular.module('starter.controllers', [])
   }
 
 
-  function setCabColor(isFull, onDuty) {
-	var color = "#008000" ;
-	if (isFull) {
+  function setCabColor(status) {
+	var color = "#008000" ; // == "onduty"
+	if (status == "full") {
 		color = "#FFFF00";
 	}
-	if (!onDuty) {
+	if (status == "offduty") {
 		color = "#FF0000";
 	}
 	return color;
@@ -190,45 +228,51 @@ angular.module('starter.controllers', [])
 	
 	/* The JSON for these should be:
 		var jsonCab = {
-			"latitude": <double>
-			"longitude": <double>
-			"isFull": <true or false>
-			"onDuty": <true or false>		
+			"CabCode": Cab#
+			"RouteName": Name of Route
+			"Capacity": number
+			"CurrentStatus": full, onduty, offduty
+            "Longitude": <double>
+            "Latitude": <double>
 		}
 		
 	*/
-	var cabs = [
-		{
-			"latitude": 32.986498,
-			"longitude": -96.751010,
-			"isFull": false,
-			"onDuty": true
-		},
-		{
-			"latitude": 32.985672,
-			"longitude": -96.754399,
-			"isFull": false,
-			"onDuty": false
-		}	
-	
-	];
-	
-	for (i = 0; i < cabs.length; i++) {
-		drawCab(cabs[i].latitude, cabs[i].longitude, cabs[i].isFull, cabs[i].onDuty);
-	}
+	       var url = 'http://cometcabs.azurewebsites.net/api/CabActivity';
+ 
+            var xhr = createCORSRequest('GET', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var cabs = JSON.parse(xhr.responseText);
+                for (i = 0; i < cabs.length; i++) {
+                    drawCab(cabs[i]);
+                }
+                
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
 
   }
   
-  function drawCab(latitude, longitude, isFull, onDuty) {
+  function drawCab(cab) {
 	cab = new google.maps.Marker({
 		map: map,
-		position: new google.maps.LatLng(latitude, longitude),
+		position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
 		icon: {
 		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
 		fillOpacity: 1.0,
-		fillColor: setCabColor(isFull, onDuty),
+		fillColor: setCabColor(cab.Status),
 		strokeOpacity: 1.0,
-		strokeColor: setCabColor(isFull, onDuty),
+		strokeColor: setCabColor(cab.Status),
 		strokeWeight: 1.0,				
 		scale: 7 //pixels
 		}		
