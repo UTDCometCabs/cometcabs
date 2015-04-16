@@ -41,6 +41,11 @@ angular.module('starter.controllers', [])
 	var chicago = new google.maps.LatLng(41.850033, -87.6500523);
 	var map;
     var cabs = [];
+	var routes = [];
+	var riders = []; //Note, driver app only. If copying things to the rider app, leave this out.
+	var newcabs = [];
+	var newroutes = [];
+	var newriders = [];
 	var full;
 	var fullControl;
 	var fullUI;	
@@ -130,7 +135,7 @@ angular.module('starter.controllers', [])
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
 			//var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId=3&currentCapacity=2&currentStatus=On%20Duty&latitude=' + latitude + '&longitude=' + longitude;
+			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId=4&currentCapacity=2&currentStatus=On%20Duty&latitude=' + latitude + '&longitude=' + longitude;
  
             var xhr = createCORSRequest('POST', url);
  
@@ -182,7 +187,7 @@ angular.module('starter.controllers', [])
                 for (i = 0; i < routes.length; i++) {
                     setRouteFromJSON(routes[i]);
                 }
-                
+                removeOldRoutes();
             };
  
             xhr.onerror = function () {
@@ -206,10 +211,19 @@ angular.module('starter.controllers', [])
             strokeWeight: 2.5,
             map: map
         });
-	
-  }
+		newroutes.push(routeLine);
+	}
 
-
+	function removeOldRoutes() {
+		for (i = 0; i < routes.length; i++) {
+			routes[i].setMap(null);
+		}
+		routes = [];
+		for (i = 0; i < newroutes.length; i++) {
+			routes.push(newroutes[i]);
+		}
+		newroutes = [];
+	}
   function setCabColor(status) {
 	var color = "#008000" ; // == "onduty"
 	if (status == "full") {
@@ -253,7 +267,7 @@ angular.module('starter.controllers', [])
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
-                
+                removeOldCabs();
             };
  
             xhr.onerror = function () {
@@ -264,8 +278,69 @@ angular.module('starter.controllers', [])
 
   }
   
+    function setRiderMarkers() {
+  		/*Code to add a marker representing a single icon to represent a cab.
+		The icon does not resize, so I'll have to add some sort of zoom listener
+		Will probably use http://stackoverflow.com/questions/3281524/resize-markers-depending-on-zoom-google-maps-v3
+		as a reference for that*/
+	
+	/* The JSON for these should be:
+		var jsonRider = {			
+            "Longitude": <double>
+            "Latitude": <double>
+		}
+		
+	*/
+	       var url = 'http://cometcabs.azurewebsites.net/api/RiderActivity';
+ 
+            var xhr = createCORSRequest('GET', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var cabs = JSON.parse(xhr.responseText);
+                for (i = 0; i < cabs.length; i++) {
+                    drawRider(riders[i]);
+                }				
+                removeOldRiders();
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+
+  }
+  
+    function drawRider(rider) {
+		riderMarker = new google.maps.Marker({
+			map: map,
+			position: new google.maps.LatLng(rider.Latitude, rider.Longitude),
+			title: 'Rider Waiting'
+			});  
+		newriders.push(rider);
+	}
+	/*Takes all the cabs in the list of already existing riders and removes
+	  them from the map. The riders last fetched remain and are copied for
+	  removal during the next cycle. */
+	function removeOldRiders() {
+		for (i = 0; i< riders.length; i++){
+            riders[i].setMap(null);
+        }
+        riders = [];
+		for (i = 0; i < newriders.length; i++) {
+			riders.push(newriders[i]);
+		}
+		newriders = [];
+	}
+     
   function drawCab(cab) {
-	cab = new google.maps.Marker({
+	cabMarker = new google.maps.Marker({
 		map: map,
 		position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
 		icon: {
@@ -278,16 +353,21 @@ angular.module('starter.controllers', [])
 		scale: 7 //pixels
 		}		
 		});  
-      cabs.push(cab);
+      newcabs.push(cabMarker);
   }
     
-    function removeCabs(){
+    function removeOldCabs(){
         for (i = 0; i< cabs.length; i++){
             cabs[i].setMap(null);
         }
         cabs = [];
+		for (i = 0; i < newcabs.length; i++) {
+			cabs.push(newcabs[i]);
+		}
+		newcabs = [];
     }
 
+	
   function toggleFull() {
 	full = !full;
 	if (full) {
@@ -463,9 +543,9 @@ angular.module('starter.controllers', [])
 
 	}
     function refresh() {
-        setRouteCoordinates(); //Sets the details for routes
-        removeCabs();
+        setRouteCoordinates(); //Sets the details for routes        
 		setCabMarkers();
+		//setRiderMarkers():
         updateGPSLocation();
     }
 	  /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/
