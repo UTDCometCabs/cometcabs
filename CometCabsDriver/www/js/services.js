@@ -6,7 +6,7 @@ angular.module('starter.services', [])
             var deferred = $q.defer();
             var promise = deferred.promise;
  
-            if (true) {
+            if (name.localeCompare("driver") == 0 && pw.localeCompare("pass") == 0) {
                 deferred.resolve('Welcome ' + name + '!');
             } else {
                 deferred.reject('Wrong credentials.');

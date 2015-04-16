@@ -11,12 +11,9 @@
 		<div>
 			<label class="item item-input item-select">
 				<div class="input-label">
-					Route
+					Route ID
 				</div>
-				<select>
-					<option selected>Route 1</option>
-					<option>Route 2</option>
-					<option>Route 3</option>
+				<select ng-model="RouteIDSelect" ng-options="obj.RouteID as obj.RouteName for obj in allRoutes">
 				</select>
 			</label>
       </div>
@@ -25,10 +22,7 @@
 				<div class="input-label">
 					Cab ID
 				</div>
-				<select>
-					<option selected>Cab 1</option>
-					<option>Cab 2</option>
-					<option>Cab 3</option>
+				<select ng-model="CabIDSelect" ng-options="obj.CabID as obj.CabName for obj in allCabs">
 				</select>
 			</label>
       </div>

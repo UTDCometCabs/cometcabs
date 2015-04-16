@@ -19,7 +19,7 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('LoginCtrl', function($scope, LoginService, $ionicPopup, $state) {
+.controller('LoginCtrl', function($scope, LoginService, $ionicPopup, $state, $http) {
     $scope.data = {};
  
     $scope.login = function() {
@@ -32,6 +32,16 @@ angular.module('starter.controllers', [])
             });
         });
     }
+	
+	$http.get('routeData.json').success(function(data) {
+		$scope.allRoutes = data;
+		$scope.RouteIDSelect = "1";
+	});
+	
+	$http.get('cabData.json').success(function(data) {
+		$scope.allCabs = data;
+		$scope.CabIDSelect = "1";
+	});
 })
 
 .controller('MapCtrl', function($scope, $ionicLoading, $compile) {
