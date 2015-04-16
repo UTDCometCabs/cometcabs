@@ -1,53 +1,65 @@
 ﻿@model CometCabsAdmin.Web.Models.LoginViewModel
 
 @{
-    ViewBag.Title = "Login";
+    ViewBag.Title = "CometCabs Login";
 }
 
-<h2>@ViewBag.Title</h2>
+<h2></h2>
 
-<div ng-controller="LoginController" style="width: 600px;">
-    @using (@Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "form-horizontal" }))
-    {
-        <div class="form-group">
-            <div class="col-sm-5">
-                @Html.ValidationSummary()
-                @Html.Hidden("ReturnUrl", Request.QueryString["returnUrl"])
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-2">
-                @Html.LabelFor(model => model.Username)
-            </div>
-            <div class="col-sm-5">
-                @Html.TextBoxFor(model => model.Username, new { @class = "form-control" })
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-2">
-                @Html.LabelFor(model => model.Password)
-            </div>
-            <div class="col-sm-5">
-                @Html.PasswordFor(model => model.Password, new { @class = "form-control" })
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-xs-2">
-            </div>
-            <div class="col-xs-offset-0 col-sm-5">
-                <div class="checkbox">
-                    @Html.CheckBoxFor(model => model.RememberMe)<span>@Html.DisplayNameFor(model => model.RememberMe)</span>
+<div class="row">
+    <div class="col-lg-4">
+    </div>
+    <div class="col-lg-5" style="padding-top: 50px;">
+        <div ng-controller="LoginController" style="width: 600px;">
+            <fieldset style="border: outset;">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <img src="~/Content/Images/CometCabs-small.png" />
+                    </div>
+                    <div class="col-sm-7" style="text-align: center; height: 95px; padding-top: 20px; font-size: 18pt;">@ViewBag.Title</div>
                 </div>
-            </div>
+                <div style="padding: 10px 50px;">
+                    @using (@Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "form-horizontal" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                @Html.ValidationSummary(true, "Login failed", new { @class = "bg-warning" })
+                                @Html.Hidden("ReturnUrl", Request.QueryString["returnUrl"])
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Username, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-9">
+                                @Html.TextBoxFor(model => model.Username, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Password, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-9">
+                                @Html.PasswordFor(model => model.Password, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <div class="checkbox">
+                                    @Html.CheckBoxFor(model => model.RememberMe)<span>@Html.DisplayNameFor(model => model.RememberMe)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <button type="submit" class="btn btn-default">Login</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </fieldset>
         </div>
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-5">
-                <button type="submit">Login</button>
-            </div>
-        </div>
-    }
+    </div>
+    <div class="col-lg-3">
+    </div>
 </div>
-
 @section ViewScripts
 {
     <script>

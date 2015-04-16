@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using CometCabsAdmin.Model.Entities;
 using CometCabsAdmin.Model.Contracts;
 using CometCabsAdmin.Web.Models;
+//using Microsoft.Practices.Unity;
 
 namespace CometCabsAdmin.Web.Controllers
 {
@@ -21,7 +22,6 @@ namespace CometCabsAdmin.Web.Controllers
             , IEncryption encryption
             )
         {
-
             _userService = userService;
             _encryption = encryption;
         }
@@ -29,7 +29,7 @@ namespace CometCabsAdmin.Web.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            return RedirectToAction("Login");
+            return RedirectToAction("UserAccount");
         }
 
         [HttpGet]
@@ -38,89 +38,110 @@ namespace CometCabsAdmin.Web.Controllers
             return View();
         }
 
-        // [CometCabsAuthorize(Roles = "Admin")]
         [HttpGet]
         public ActionResult UserAccount()
         {
-            //User user = _userService.GetUsers()
+            List<User> users = _userService.GetUsers().ToList();
+            List<UserTable> table = new List<UserTable>();
 
-            return View();
-        }
-
-        [HttpPost]
-        public ActionResult UserAccount([Bind(Exclude = "Id")]UserAccountViewModel model)
-        {
-            if (ModelState.IsValid)
+            foreach (User user in users)
             {
-                try
+                table.Add(new UserTable
                 {
-                    User user = new User
-                    {
-                        Username = model.UserName,
-                        EmailAddress = model.EmailAddress,
-                        Password = _encryption.Encrypt(model.Password),
-                        CreatedBy = HttpContext.User.Identity.Name,
-                        CreateDate = DateTime.Now,
-                        IPAddress = IPAddress,
-                        UserProfile = new UserProfile
-                        {
-                            FirstName = model.FirstName,
-                            LastName = model.LastName,
-                            Address = model.Address,
-                            IPAddress = IPAddress,
-                        },
-                        UserRole = new UserRoles
-                        {
-                            RoleName = model.RoleName,
-                            CreatedBy = HttpContext.User.Identity.Name,
-                            CreateDate = DateTime.Now,
-                            IPAddress = IPAddress,
-                        }
-                    };
-
-                    if (model.Id > 0)
-                    {
-                        user.Id = model.Id;
-                        user.UpdateDate = DateTime.Now;
-                        user.UpdatedBy = HttpContext.User.Identity.Name;
-                        user.UserProfile.UpdateDate = DateTime.Now;
-                        user.UserProfile.UpdatedBy = HttpContext.User.Identity.Name;
-                        user.UserRole.UpdateDate = DateTime.Now;
-                        user.UserRole.UpdatedBy = HttpContext.User.Identity.Name;
-
-                        _userService.UpdateUser(user);
-                    }
-                    else
-                    {
-                        if (!_userService.GetUsers().Any(s => (s.Username == model.UserName)))
-                        {
-                            user.CreateDate = DateTime.Now;
-                            user.CreatedBy = HttpContext.User.Identity.Name;
-                            user.UserProfile.CreateDate = DateTime.Now;
-                            user.UserProfile.CreatedBy = HttpContext.User.Identity.Name;
-                            user.UserRole.CreateDate = DateTime.Now;
-                            user.UserRole.CreatedBy = HttpContext.User.Identity.Name;
-
-                            _userService.InsertUser(user);
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("Error", string.Format("{0} already exists", model.UserName));
-                        }
-                    }
-
-                    return RedirectToAction("UserAccount");
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("Error", ex.Message);
-                }
+                    UserName = user.Username,
+                    FullName = user.UserProfile.NameLastFirst,
+                    RoleName = user.UserRole.RoleName,
+                });
             }
+
+            UserAccountViewModel model = new UserAccountViewModel
+            {
+                UserTable = table,
+            };
 
             return View(model);
         }
 
         [HttpPost]
+        public ActionResult SaveUser(string id, string userName, string firstName, string lastName, string emailAddress, string role, string password1, string password2, string address)
+        {
+            string message = string.Empty;
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    SelectListItem selectedRole = JsonConvert.DeserializeObject<SelectListItem>(role);
+
+                    if (password1.SequenceEqual(password2))
+                    {
+                        User user = new User
+                        {
+                            Username = userName,
+                            EmailAddress = emailAddress,
+                            Password = _encryption.Encrypt(password2),
+                            CreatedBy = HttpContext.User.Identity.Name,
+                            CreateDate = DateTime.Now,
+                            IPAddress = IPAddress,
+                            UserProfile = new UserProfile
+                            {
+                                FirstName = firstName,
+                                LastName = lastName,
+                                Address = address,
+                                IPAddress = IPAddress,
+                            },
+                            UserRole = new UserRoles
+                            {
+                                RoleName = selectedRole.Value,
+                                CreatedBy = HttpContext.User.Identity.Name,
+                                CreateDate = DateTime.Now,
+                                IPAddress = IPAddress,
+                            }
+                        };
+
+                        if (!string.IsNullOrWhiteSpace(id))
+                        {
+                            user.Id = int.Parse(id);
+                            user.UpdateDate = DateTime.Now;
+                            user.UpdatedBy = HttpContext.User.Identity.Name;
+                            user.UserProfile.UpdateDate = DateTime.Now;
+                            user.UserProfile.UpdatedBy = HttpContext.User.Identity.Name;
+                            user.UserRole.UpdateDate = DateTime.Now;
+                            user.UserRole.UpdatedBy = HttpContext.User.Identity.Name;
+
+                            _userService.UpdateUser(user);
+                        }
+                        else
+                        {
+                            if (!_userService.GetUsers().Any(s => (s.Username == userName)))
+                            {
+                                user.CreateDate = DateTime.Now;
+                                user.CreatedBy = HttpContext.User.Identity.Name;
+                                user.UserProfile.CreateDate = DateTime.Now;
+                                user.UserProfile.CreatedBy = HttpContext.User.Identity.Name;
+                                user.UserRole.CreateDate = DateTime.Now;
+                                user.UserRole.CreatedBy = HttpContext.User.Identity.Name;
+
+                                _userService.InsertUser(user);
+                            }
+                            else
+                            {
+                                message = string.Format("{0} already exists", userName);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    message = string.Format("Error: {0}, stack trace: {1}", ex.Message, ex.StackTrace);
+                }
+            }
+
+            return Content(message);
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel model)
         {
             if (ModelState.IsValid)

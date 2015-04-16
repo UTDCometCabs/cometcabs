@@ -16,5 +16,7 @@ namespace CometCabsAdmin.Model.Entities
         public virtual UserProfile UserProfile { get; set; }
         // public virtual ICollection<UserRoles> UserRoles { get; set; }
         public virtual UserRoles UserRole { get; set; }
+
+        public virtual ICollection<CabActivity> CabActivity { get; set; }
     }
 }

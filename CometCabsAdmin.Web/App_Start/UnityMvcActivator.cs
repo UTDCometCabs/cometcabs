@@ -1,6 +1,9 @@
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity.Mvc;
+using System.Web.Http.Dispatcher;
+using Microsoft.Practices.Unity;
+using System.Web.Http;
 
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(CometCabsAdmin.Web.UnityWebActivator), "Start")]
 [assembly: WebActivatorEx.ApplicationShutdownMethod(typeof(CometCabsAdmin.Web.UnityWebActivator), "Shutdown")]
@@ -13,13 +16,12 @@ namespace CometCabsAdmin.Web
         /// <summary>Integrates Unity when the application starts.</summary>
         public static void Start() 
         {
-            var container = UnityConfig.GetConfiguredContainer();
+            IUnityContainer container = UnityConfig.GetConfiguredContainer();
 
             FilterProviders.Providers.Remove(FilterProviders.Providers.OfType<FilterAttributeFilterProvider>().First());
             FilterProviders.Providers.Add(new UnityFilterAttributeFilterProvider(container));
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
-
             // TODO: Uncomment if you want to use PerRequestLifetimeManager
             // Microsoft.Web.Infrastructure.DynamicModuleHelper.DynamicModuleUtility.RegisterModule(typeof(UnityPerRequestHttpModule));
         }

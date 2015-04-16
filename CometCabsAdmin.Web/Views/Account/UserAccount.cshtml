@@ -3,63 +3,238 @@
 @{
     ViewBag.Title = "Manage User Account";
     List<SelectListItem> roles = new List<SelectListItem>();
-    roles.Add(new SelectListItem { Text = "Admin", Value = "Admin" });
+    roles.Add(new SelectListItem { Text = "Administrator", Value = "Admin" });
+    roles.Add(new SelectListItem { Text = "User/Rider", Value = "Rider" });
+    roles.Add(new SelectListItem { Text = "User/Driver", Value = "Driver" });
 }
 
+<div class="hidden" id="userTable">
+    @Html.Raw(Json.Encode(Model.UserTable))
+</div>
+<div class="hidden" id="roles">
+    @Html.Raw(Json.Encode(roles))
+</div>
+
 <h2>@ViewBag.Title</h2>
-@using (@Html.BeginForm("UserAccount", "Account", FormMethod.Post))
-{
-    @Html.ValidationSummary()
-    @Html.HiddenFor(model => model.Id)
-    <div>
-        @Html.LabelFor(model => model.UserName)
+<div id="scope" ng-controller="UserController">
+    <div class="row">
+        <div class="col-md-1">
+            <ul class="nav nav-pills" style="width: 100px;">
+                <li role="presentation">
+                    <a href="javascript:void(0)" ng-click="addUser()">Add User</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-8" style="padding-left: 0px;">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">List of users</div>
+                <div class="panel-body">
+                    <table class="table table-striped table-hover table-condensed">
+                        <thead>
+                            <tr>
+                                <th>
+                                    No.
+                                </th>
+                                <th>
+                                    User Name
+                                </th>
+                                <th>
+                                    Full Name
+                                </th>
+                                <th>
+                                    Role
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="user in userTable" ng-click="editUser(user)">
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ user.UserName }}</td>
+                                <td>{{ user.FullName }}</td>
+                                <td>{{ user.RoleName }}</td>
+                                <td class="icon glyphicon glyphicon-trash" ng-click="deleteUser(user)" title="Delete user"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-default" ng-show="editMode">
+                <!-- Default panel contents -->
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div id="status-caption" class="alert alert-danger" style="top: 70px; position: absolute; display: none;">{{ $scope.errorMessage }}</div>
+                    <form class="form-horizontal" method="post">
+                        @Html.ValidationSummary()
+                        @Html.HiddenFor(model => model.Id)
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.UserName, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" ng-model="userName" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FirstName, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" ng-model="firstName" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LastName, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" ng-model="lastName" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EmailAddress, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" ng-model="emailAddress" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.RoleName, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <select ng-model="selectedRole" ng-options="item.Text for item in roles">
+                                    <option value="">-- select role --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Password, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <input type="password" class="form-control" ng-model="password1" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PasswordConfirm, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <input type="password" class="form-control" ng-model="password2" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Address, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" ng-model="address" />
+                            </div>
+                        </div>
+                        <div class="col-sm-offset-3 col-sm-2">
+                            <button type="button" ng-click="saveUser()">Save</button>
+                            <button type="reset" ng-click="discardChanges()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        @Html.TextBoxFor(model => model.UserName)
+    <div class="col-md-3">
     </div>
-    <div>
-        @Html.LabelFor(model => model.FirstName)
-    </div>
-    <div>
-        @Html.TextBoxFor(model => model.FirstName)
-    </div>
-    <div>
-        @Html.LabelFor(model => model.LastName)
-    </div>
-    <div>
-        @Html.TextBoxFor(model => model.LastName)
-    </div>
-    <div>
-        @Html.LabelFor(model => model.EmailAddress)
-    </div>
-    <div>
-        @Html.TextBoxFor(model => model.EmailAddress)
-    </div>
-    <div>
-        @Html.LabelFor(model => model.RoleName)
-    </div>
-    <div>
-        @Html.DropDownListFor(model => model.RoleName, roles, "-- Select role --")
-    </div>
-    <div>
-        @Html.LabelFor(model => model.Password)
-    </div>
-    <div>
-        @Html.PasswordFor(model => model.Password)
-    </div>
-    <div>
-        @Html.LabelFor(model => model.PasswordConfirm)
-    </div>
-    <div>
-        @Html.PasswordFor(model => model.PasswordConfirm)
-    </div>
-    <div>
-        @Html.LabelFor(model => model.Address)
-    </div>
-    <div>
-        @Html.TextBoxFor(model => model.Address)
-    </div>
-    <div>
-        <button type="submit">Save</button>
-    </div>
+</div>
+
+@section ViewScripts{
+    <script type="text/ng-template" id="delete-dialog">
+        <div class="ngdialog-message">
+            <h3>Delete User</h3>
+            <p>User <span style="font-weight: bold;">{{ userSelected.userName }}</span> will be removed permanently.</p>
+            <p>Are you sure you want to do this?</p>
+        </div>
+        <div class="ngdialog-buttons">
+            <button type="button" class="ngdialog-button ngdialog-button-primary" ng-click="confirm()">Confirm</button>
+            <button type="button" class="ngdialog-button ngdialog-button-secondary" ng-click="closeThisDialog()">Cancel</button>
+        </div>
+    </script>
+    <script type="text/javascript">
+        (function (angular) {
+            'use strict';
+            var app = angular.module('CometCabs', ['ngRoute', 'ngDialog']);
+
+            app.config(['ngDialogProvider', function (ngDialogProvider) {
+                ngDialogProvider.setDefaults({
+                    className: 'ngdialog-theme-default',
+                    plain: false,
+                    showClose: true,
+                    closeByDocument: true,
+                    closeByEscape: true,
+                    appendTo: false,
+                    preCloseCallback: function () {
+                        console.log('default pre-close callback');
+                    }
+                });
+            }]);
+
+            // TODO: add user
+            // TODO: edit user
+            // TODO: delete user
+
+            app.controller('UserController', ['$scope', '$http', '$route', '$timeout','ngDialog', function ($scope, $http, $route, $timeout, ngDialog) {
+                $scope.userTable = JSON.parse($('#userTable').html());
+                $scope.roles = JSON.parse($('#roles').html());
+                $scope.editMode = false;
+                $scope.userName = '';
+                $scope.firstName = '';
+                $scope.lastName = '';
+                $scope.emailAddress = '';
+                $scope.selectedRole = '';
+                $scope.password1 = '';
+                $scope.password2 = '';
+                $scope.address = '';
+
+                $scope.saveUser = function () {
+                    var user = {
+                        userName: $scope.userName,
+                        firstName: $scope.firstName,
+                        lastName: $scope.lastName,
+                        emailAddress: $scope.emailAddress,
+                        role: JSON.stringify($scope.selectedRole),
+                        // isActive: $scope.isActive,
+                        password1: $scope.password1,
+                        password2: $scope.password2,
+                        address: $scope.address,
+                    }
+
+                    $http({ method: 'POST', url: '/Account/SaveUser', contentType: 'application/json', data: user })
+                        .success(function (data) {
+                            // resetMap();
+                            if (data === '') {
+                                location.href = '/Account/UserAccount'
+                            } else {
+                                $timeout(function () {
+                                    angular.element('#status-caption').fadeToggle(1000);
+                                }, 5000);
+                            }
+                        })
+                        .error(function (data, status, headers, config) {
+                            // called asynchronously if an error occurs
+                            // or server returns response with an error status.
+                            alert(data + ' ' + status + ' ' + headers + ' ' + config)
+                        });
+                };
+
+                $scope.discardChanges = function () {
+                    clearForm()
+                };
+
+                $scope.addUser = function () {
+                    $scope.editMode = true;
+                };
+
+                $scope.editUser = function () {
+
+                };
+
+                function clearForm() {
+                    $scope.editMode = false;
+                    $scope.userName = '';
+                    $scope.firstName = '';
+                    $scope.lastName = '';
+                    $scope.emailAddress = '';
+                    $scope.selectedRole = '';
+                    $scope.password1 = '';
+                    $scope.password2 = '';
+                    $scope.address = '';
+                }
+
+
+            }]);
+        })(window.angular);
+    </script>
 }

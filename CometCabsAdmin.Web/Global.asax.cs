@@ -1,14 +1,17 @@
-﻿using System;
+﻿using CometCabsAdmin.Dal;
+using CometCabsAdmin.Web.Models;
+using Microsoft.Practices.Unity;
+using Newtonsoft.Json;
+using System;
 using System.Data.Entity;
+using System.Net.Http.Formatting;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Dispatcher;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
-using CometCabsAdmin.Dal;
-using CometCabsAdmin.Web.Models;
-using Newtonsoft.Json;
 
 namespace CometCabsAdmin.Web
 {
@@ -19,12 +22,12 @@ namespace CometCabsAdmin.Web
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
-
+            
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-
+            
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<CometCabsDbContext>());
         }
 

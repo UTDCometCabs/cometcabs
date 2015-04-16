@@ -14,5 +14,6 @@ namespace CometCabsAdmin.Model.Entities
         public string RouteColor { get; set; }
 
         public virtual ICollection<RouteCoordinates> RouteCoordinates { get; set; }
+        public virtual ICollection<RouteDirections> RouteDirections { get; set; }
     }
 }

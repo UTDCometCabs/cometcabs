@@ -29,6 +29,9 @@ namespace CometCabsAdmin.Dal.Mapping
             HasMany<RouteCoordinates>(t => t.RouteCoordinates)
                 .WithRequired(t => t.Route);
 
+            HasMany<RouteDirections>(t => t.RouteDirections)
+                .WithRequired(t => t.Route);
+
             ToTable("Routes");
         }
     }

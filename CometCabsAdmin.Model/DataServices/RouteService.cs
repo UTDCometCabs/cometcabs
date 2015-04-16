@@ -43,24 +43,41 @@ namespace CometCabsAdmin.Model.DataServices
 
         public void DeleteRoute(Entities.Route route)
         {
-            DeleteCoordinateByRoute(route);
             _routeRepository.Delete(route);
         }
 
-
-        public void DeleteRouteCoordinate(Entities.Route route)
+        public IQueryable<Entities.RouteCoordinates> GetRouteCoordinates(long id)
         {
-            DeleteCoordinateByRoute(route);
+            return _routeCoordinateRepository.Table
+                .Where(s => s.RouteId.Equals(id));
         }
 
-        #endregion
-
-        private void DeleteCoordinateByRoute(Entities.Route route)
+        public Entities.RouteCoordinates GetRouteCoordinate(float latitude, float longitude)
         {
-            foreach (RouteCoordinates coordinate in route.RouteCoordinates)
+            Entities.RouteCoordinates result = _routeCoordinateRepository.Table
+                .Where(s => (Math.Abs(Math.Round(s.Latitude, 3) - (Math.Round(latitude, 3))) == 0)
+                    && ((Math.Round(s.Longitude, 3) - Math.Round(longitude, 3)) == 0))
+                .FirstOrDefault();
+
+            return result;
+        }
+
+        public void DeleteRouteCoordinate(Entities.RouteCoordinates coordinate)
+        {
+            _routeCoordinateRepository.Delete(coordinate);
+        }
+
+        public void DeleteRouteCoordinate(long id)
+        {
+            IQueryable<RouteCoordinates> coordinates = _routeCoordinateRepository.Table
+                .Where(s => s.RouteId.Equals(id));
+
+            foreach (RouteCoordinates coordinate in coordinates)
             {
                 _routeCoordinateRepository.Delete(coordinate);
             }
         }
+
+        #endregion
     }
 }

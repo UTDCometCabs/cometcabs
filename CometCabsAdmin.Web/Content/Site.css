@@ -12,3 +12,7 @@
 .hidden{
     display: none;
 }
+
+.icon:hover {
+    cursor: pointer;
+}

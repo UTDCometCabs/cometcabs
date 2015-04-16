@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CometCabsAdmin.Model.Contracts;
+using Microsoft.Practices.Unity;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -10,6 +12,8 @@ namespace CometCabsAdmin.Web
 {
     public class CometCabsAuthorizeAttribute : AuthorizeAttribute
     {
+        //private IUserService _userService { get; set; }
+
         protected virtual CustomPrincipal CurrentUser
         {
             get
@@ -47,12 +51,16 @@ namespace CometCabsAdmin.Web
             }
             else
             {
-                filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(
-                    new { 
-                        controller = "Account", 
-                        action = "Login", 
-                        returnUrl = HttpContext.Current.Request.Url.AbsoluteUri  
-                    }));
+                //if (_userService.GetUsers().Any())
+                //{
+                    filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(
+                        new
+                        {
+                            controller = "Account",
+                            action = "Login",
+                            returnUrl = HttpContext.Current.Request.Url.AbsoluteUri
+                        }));
+                // }
             }
         }
     }

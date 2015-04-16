@@ -2,6 +2,7 @@
 using CometCabsAdmin.Model.Entities;
 using CometCabsAdmin.Web.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,32 @@ namespace CometCabsAdmin.Web.Controllers
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
+        public ActionResult GetRoute(string latitude, string longitude)
+        {
+            JsonResult result = new JsonResult();
+
+            if ((!string.IsNullOrWhiteSpace(latitude)) && (!string.IsNullOrWhiteSpace(longitude)))
+            {
+                RouteCoordinates coordinate = _routeService.GetRouteCoordinate(float.Parse(latitude), float.Parse(longitude));
+
+                if (coordinate != null)
+                {
+                    Route route = _routeService.GetRoute(coordinate.RouteId);
+
+                    if (route != null)
+                    {
+                        result = Json(route);
+                    }
+
+                    // result=JsonConvert.DeserializeObject("origin:{D:{0}, k:{1}}, destination:{D:{0}, k:{1}}, waypoints:{
+                    // {location:{D:{0}, k:{1}}, stopover: false}, {location:{D:{0}, k:{1}}, stopover: false}}}
+                }
+            }
+
+            return result;
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
         public ActionResult GetForm(Nullable<long> id = null)
         {
             MapViewModel model = new MapViewModel();
@@ -86,12 +113,32 @@ namespace CometCabsAdmin.Web.Controllers
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult SaveRoute(string routeId, string routeName, string routeDesc, string routeColor, string routes)
+        public ActionResult SaveRoute(string routeId, string routeName, string routeDesc, string routeColor, bool isActive, string routes, string directions)
         {
             Route route = _routeService.GetRoute(long.Parse(routeId));
             SelectListItem color = JsonConvert.DeserializeObject<SelectListItem>(routeColor);
             List<RouteCoordinate> coordinates = JsonConvert.DeserializeObject<List<RouteCoordinate>>(routes);
             List<RouteCoordinates> routeCoordinates = new List<RouteCoordinates>();
+            List<RouteDirections> routeDirections = new List<RouteDirections>();
+            dynamic dirs = JsonConvert.DeserializeObject(directions);
+
+            foreach (var dir in dirs)
+            {
+                string name = dir.TagName;
+                float latitude = dir.Latitude;
+                float longitude = dir.Longitude;
+                RouteDirections direction = new RouteDirections
+                {
+                    TagName = name,
+                    Latitude = latitude,
+                    Longitude = longitude,
+                    CreatedBy = HttpContext.User.Identity.Name,
+                    CreateDate = DateTime.Now,
+                    IPAddress = IPAddress,
+                };
+
+                routeDirections.Add(direction);
+            }
 
             foreach (RouteCoordinate routeCoordinate in coordinates)
             {
@@ -112,7 +159,9 @@ namespace CometCabsAdmin.Web.Controllers
                     RouteName = routeName,
                     RouteDesc = routeDesc,
                     RouteColor = color.Value,
+                    IsActive = isActive,
                     RouteCoordinates = routeCoordinates,
+                    RouteDirections = routeDirections,
                     CreatedBy = HttpContext.User.Identity.Name,
                     CreateDate = DateTime.Now,
                     IPAddress = IPAddress,
@@ -122,10 +171,22 @@ namespace CometCabsAdmin.Web.Controllers
             }
             else
             {
-                _routeService.DeleteRouteCoordinate(route);
+                _routeService.DeleteRouteCoordinate(route.Id);
                 route.RouteCoordinates = routeCoordinates;
-
                 _routeService.UpdateRoute(route);
+            }
+
+            return View("Index", new MapViewModel());
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        public ActionResult DeleteRoute(string Id)
+        {
+            Route route = _routeService.GetRoute(long.Parse(Id));
+
+            if (route != null)
+            {
+                _routeService.DeleteRoute(route);
             }
 
             return View("Index", new MapViewModel());

@@ -6,19 +6,21 @@
     <meta charset="utf-8">
     <title>@ViewBag.Title</title>
     @Styles.Render("~/bundles/styles")
-    @Styles.Render("~/bundles/bootstrap")
-    @Styles.Render("~/bundles/jqueryui")
+    @Styles.Render("~/bundles/bootstrap-css")
+    @Styles.Render("~/bundles/jquery-ui")
+    @Styles.Render("~/bundles/ngDialog-css")
 </head>
 <body ng-app="CometCabs">
-    @if (ViewBag.Title != "Login")
+    @if (!ViewBag.Title.Contains("Login"))
     {
         <nav class="navbar navbar-default navbar-static-top">
+            <div style="float: left; width: 265px;"><img src="~/Content/Images/CometCabs-small.png" /></div>
             <div class="container">
                 <span style="font-size: 16pt; font-weight: bold;">UTD CometCabs</span>
                 <ul class="nav nav-pills">
                     <li role="presentation">@Html.ActionLink("Home", "Index", "Home")</li>
                     <li role="presentation">@Html.ActionLink("Manage Map", "Index", "Map")</li>
-                    <li role="presentation">@Html.ActionLink("Manage Cabs", "Index", "Cab")</li>
+                    <li role="presentation">@Html.ActionLink("Manage Cabs", "Index", "Cabs")</li>
                     <li role="presentation">@Html.ActionLink("Manage Users", "Index", "Account")</li>
                     <li role="presentation">@Html.ActionLink("View Statistics", "Index", "Statistics")</li>
                     <li role="presentation">@Html.ActionLink("Logout", "Logout", "Account")</li>
@@ -30,7 +32,9 @@
         @RenderBody()
     </div>
 
-    @Scripts.Render("~/bundles/scripts")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/angularjs")
+    @Scripts.Render("~/bundles/bootstrap-js")
     @RenderSection("ViewScripts", false)
 </body>
 </html>
