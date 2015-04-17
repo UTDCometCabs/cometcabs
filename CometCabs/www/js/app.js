@@ -21,6 +21,10 @@ angular.module('starter', ['ionic'])
 	var rutfordMarker; 
 	var phase1SouthMarker;
 	var cabs = [];
+	var routes = [];
+	var newcabs = [];
+	var newroutes = [];
+	var newriders = [];
 	var map;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
@@ -101,7 +105,7 @@ angular.module('starter', ['ionic'])
                 for (i = 0; i < routes.length; i++) {
                     setRouteFromJSON(routes[i]);
                 }
-                
+                removeOldRoutes();
             };
  
             xhr.onerror = function () {
@@ -127,7 +131,16 @@ angular.module('starter', ['ionic'])
         });
 	
   }
-
+    function removeOldRoutes() {
+		for (i = 0; i < routes.length; i++) {
+			routes[i].setMap(null);
+		}
+		routes = [];
+		for (i = 0; i < newroutes.length; i++) {
+			routes.push(newroutes[i]);
+		}
+		newroutes = [];
+	}
   function setCabColor(status) {
 	var color = "#008000" ; // == "onduty"
 	if (status == "full") {
@@ -171,7 +184,7 @@ angular.module('starter', ['ionic'])
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
-                
+                removeOldCabs();
             };
  
             xhr.onerror = function () {
@@ -199,16 +212,26 @@ angular.module('starter', ['ionic'])
       cabs.push(cab);
   }
     
-    function removeCabs(){
+    /*function removeCabs(){
         for (i = 0; i< cabs.length; i++){
             cabs[i].setMap(null);
         }
         cabs = [];
+    }*/
+    
+    function removeOldCabs(){
+        for (i = 0; i< cabs.length; i++){
+            cabs[i].setMap(null);
+        }
+        cabs = [];
+		for (i = 0; i < newcabs.length; i++) {
+			cabs.push(newcabs[i]);
+		}
+		newcabs = [];
     }
     
     function refresh() {
         setRouteCoordinates(); //Sets the details for routes
-        removeCabs();
 		setCabMarkers();
     }
   
@@ -217,6 +240,38 @@ angular.module('starter', ['ionic'])
 		var activeColor = 'green';
 		
 		if(btn.style.color != activeColor) {
+            var now = new Date();
+            var nowFormatted = now.getMonth() + 1 + '/' + now.getDate() + '/' + now.getFullYear() + ' ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                var url = 'http://cometcabs.azurewebsites.net/api/Interests?flagTime='+nowFormatted+'&longitude='+longitude+'&latitude='+latitude;
+
+                var xhr = createCORSRequest('POST', url);
+
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
+                }
+
+                // Response handlers.
+                xhr.onload = function () {
+                    var id = JSON.parse(xhr.responseText);
+                    var interestId = id.interestId;
+                    //this is telling me undefined even though xhr.responseText is giving an id back
+                    alert(interestId);
+                };
+
+                xhr.onerror = function () {
+                    alert('Error making the request.');
+                };
+
+                xhr.send();
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
 			btn.style.color = activeColor;
 		} else {
 			btn.style.color = 'white';
