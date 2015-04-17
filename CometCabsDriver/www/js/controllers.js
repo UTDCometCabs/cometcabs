@@ -79,7 +79,12 @@ angular.module('starter.controllers', [])
     }*/
     
     $scope.login = function() {
-        alert("CabId: "+String($scope.CabIDSelect) +" RouteId: "+ String($scope.RouteIDSelect));
+        //alert("CabId: "+String($scope.CabIDSelect) +" RouteId: "+ String($scope.RouteIDSelect));
+		var routeIDDropDown = document.getElementById("dd1"); 
+		var cabIDDropDown = document.getElementById("dd2"); 
+		alert("CabId: " + cabIDDropDown.options[cabIDDropDown.selectedIndex].text + " RouteId: " + routeIDDropDown.options[routeIDDropDown.selectedIndex].text);
+		
+		
         
         /*var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+String($scope.data.username)+'&password='+String($scope.data.password)+'&cabId='+String($scope.allCabs)+'&routeId='+String($scope.allRoutes);
  
