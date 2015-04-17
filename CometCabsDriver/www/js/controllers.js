@@ -79,10 +79,9 @@ angular.module('starter.controllers', [])
     }*/
     
     $scope.login = function() {
-        //alert("CabId: "+String($scope.CabIDSelect) +" RouteId: "+ String($scope.RouteIDSelect));
 		var routeIDDropDown = document.getElementById("dd1"); 
 		var cabIDDropDown = document.getElementById("dd2"); 
-		alert("CabId: " + cabIDDropDown.options[cabIDDropDown.selectedIndex].text + " RouteId: " + routeIDDropDown.options[routeIDDropDown.selectedIndex].text);
+		alert("CabId: " + $scope.allCabs[cabIDDropDown.selectedIndex].CabId + " RouteId: " + $scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
 		
 		
         
