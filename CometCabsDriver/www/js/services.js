@@ -24,6 +24,19 @@ angular.module('starter.services', [])
     }
 })
 
+.service('sharedActivity', function () {
+        var activity = '';
+
+        return {
+            getActivity: function () {
+                return activity;
+            },
+            setProperty: function(value) {
+                activity = value;
+            }
+        };
+    })
+
 .factory('Chats', function() {
   // Might use a resource here that returns a JSON array
 

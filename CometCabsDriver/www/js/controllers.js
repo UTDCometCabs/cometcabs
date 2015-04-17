@@ -19,11 +19,56 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('LoginCtrl', function($scope, LoginService, $ionicPopup, $state, $http) {
+.controller('LoginCtrl', function($scope, LoginService, $ionicPopup, $state, $http, sharedActivity) {
+    
+    function createCORSRequest(method, url) {
+        var xhr = new XMLHttpRequest();
+        if ("withCredentials" in xhr) {
+            // XHR for Chrome/Firefox/Opera/Safari.
+            xhr.open(method, url, true);
+        } else if (typeof XDomainRequest != "undefined") {
+            // XDomainRequest for IE.
+            xhr = new XDomainRequest();
+            xhr.open(method, url);
+        } else {
+            // CORS not supported.
+            xhr = null;
+        }
+        return xhr;    
+    }
+    
+    function getResources() {
+        var url = 'http://cometcabs.azurewebsites.net/api/login';
+ 
+            var xhr = createCORSRequest('GET', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var resources = JSON.parse(xhr.responseText);
+                $scope.allRoutes = resources.Routes;
+                //$scope.RouteIDSelect = "1";
+                $scope.allCabs = resources.Cabs;
+                //$scope.CabIDSelect = "1";
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+    }
+    
+    getResources(); //this function populates the dropdowns
+    
     $scope.data = {};
  
-    $scope.login = function() {
-        LoginService.loginUser($scope.data.username, $scope.data.password).success(function(data) {
+    /*$scope.login = function() {
+        LoginService.loginUser($scope.data.username, $scope.data.password, $scope.allRoutes, $scope.allCabs).success(function(data) {
             $state.go('driver');
         }).error(function(data) {
             var alertPopup = $ionicPopup.alert({
@@ -31,9 +76,34 @@ angular.module('starter.controllers', [])
                 template: 'Please check your credentials!'
             });
         });
+    }*/
+    
+    $scope.login = function() {
+        alert("CabId: "+String($scope.CabIDSelect) +" RouteId: "+ String($scope.RouteIDSelect));
+        
+        /*var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+String($scope.data.username)+'&password='+String($scope.data.password)+'&cabId='+String($scope.allCabs)+'&routeId='+String($scope.allRoutes);
+ 
+            var xhr = createCORSRequest('POST', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var response = JSON.parse(xhr.responseText);
+                alert(xhr.responseText);
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();*/
     }
-	
-	$http.get('routeData.json').success(function(data) {
+    
+	/*$http.get('routeData.json').success(function(data) {
 		$scope.allRoutes = data;
 		$scope.RouteIDSelect = "1";
 	});
@@ -41,10 +111,10 @@ angular.module('starter.controllers', [])
 	$http.get('cabData.json').success(function(data) {
 		$scope.allCabs = data;
 		$scope.CabIDSelect = "1";
-	});
+	});*/
 })
 
-.controller('MapCtrl', function($scope, $ionicLoading, $compile) {
+.controller('MapCtrl', function($scope, $ionicLoading, $compile, sharedActivity) {
 			
 	var rutfordMarker; 
 	var phase1SouthMarker;
@@ -205,7 +275,6 @@ angular.module('starter.controllers', [])
             };
  
             xhr.send();
-	
   }
   
     function setRouteFromJSON(route) {
