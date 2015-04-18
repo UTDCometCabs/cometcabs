@@ -26,6 +26,8 @@ angular.module('starter.services', [])
 
 .service('sharedActivity', function () {
         var activity = "";
+        var cabCode = "";
+        var routeName = "";
 
         return {
             getActivity: function () {
@@ -33,6 +35,18 @@ angular.module('starter.services', [])
             },
             setActivity: function(value) {
                 activity = value;
+            },
+            getCab: function () {
+                return cabCode;
+            },
+            setCab: function(value) {
+                cabCode = value;
+            },
+            getRoute: function () {
+                return routeName;
+            },
+            setRoute: function(value) {
+                routeName = value;
             }
         };
     })

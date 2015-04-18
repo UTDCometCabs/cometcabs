@@ -84,6 +84,8 @@ angular.module('starter.controllers', [])
 		//alert("CabId: " + $scope.allCabs[cabIDDropDown.selectedIndex].CabId + " RouteId: " + $scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
 		
 		var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+String($scope.data.username)+'&password='+String($scope.data.password)+'&cabId='+String($scope.allCabs[cabIDDropDown.selectedIndex].CabId)+'&routeId='+String($scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
+            var cabCode = cabIDDropDown.options[cabIDDropDown.selectedIndex].text;
+            var routeName = routeIDDropDown.options[routeIDDropDown.selectedIndex].text;
  
             var xhr = createCORSRequest('POST', url);
  
@@ -100,6 +102,8 @@ angular.module('starter.controllers', [])
                 } else {
                     activityId = String(response.ActivityId);
                     sharedActivity.setActivity(activityId);
+                    sharedActivity.setCab(cabCode);
+                    sharedActivity.setRoute(routeName);
                     $state.go('driver');
                 }
             };
@@ -139,7 +143,7 @@ angular.module('starter.controllers', [])
 	var fullUI;	
 	var capacity;
 	var totalText;
-    var status;
+    var status = "on-duty"; //initalize cab status to on-duty
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
@@ -355,6 +359,7 @@ angular.module('starter.controllers', [])
             xhr.onload = function () {
                 var cabs = JSON.parse(xhr.responseText);
                 //need to determine correct status here
+                alert(cabs[0].CabCode
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
