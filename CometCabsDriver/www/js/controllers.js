@@ -137,8 +137,9 @@ angular.module('starter.controllers', [])
 	var full;
 	var fullControl;
 	var fullUI;	
-	var totalRiders;
+	var capacity;
 	var totalText;
+    var status;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
@@ -146,7 +147,7 @@ angular.module('starter.controllers', [])
         //var site = new google.maps.LatLng(33.135307, -96.737604);
 		
         full = false;
-		totalRiders = 0;
+		capacity = 0;
         var mapOptions = {
           streetViewControl:true,
           center: site,
@@ -224,7 +225,7 @@ angular.module('starter.controllers', [])
                 var longitude = position.coords.longitude;
 
 			//var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId='+ sharedActivity.getActivity() +'&currentCapacity=2&currentStatus=on-duty&latitude=' + latitude + '&longitude=' + longitude;
+			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId='+ sharedActivity.getActivity() +'&currentCapacity='+capacity+'&currentStatus='+status+'&latitude=' + latitude + '&longitude=' + longitude;
  
             var xhr = createCORSRequest('POST', url);
  
@@ -335,7 +336,7 @@ angular.module('starter.controllers', [])
 			"CabCode": Cab#
 			"RouteName": Name of Route
 			"Capacity": number
-			"CurrentStatus": full, onduty, offduty
+			"CurrentStatus": full, on-duty, off-duty
             "Longitude": <double>
             "Latitude": <double>
 		}
@@ -353,6 +354,7 @@ angular.module('starter.controllers', [])
             // Response handlers.
             xhr.onload = function () {
                 var cabs = JSON.parse(xhr.responseText);
+                //need to determine correct status here
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
@@ -372,7 +374,7 @@ angular.module('starter.controllers', [])
               map: map,
               position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
               icon: {
-                  path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                  path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
                   fillColor: setCabColor(cab.Status),
                   strokeColor: setCabColor(cab.Status),
@@ -406,7 +408,7 @@ angular.module('starter.controllers', [])
 		}
 		
 	*/
-	       var url = 'http://cometcabs.azurewebsites.net/api/RiderActivity';
+	       var url = 'http://cometcabs.azurewebsites.net/api/Interests';
  
             var xhr = createCORSRequest('GET', url);
  
@@ -417,7 +419,7 @@ angular.module('starter.controllers', [])
  
             // Response handlers.
             xhr.onload = function () {
-                var cabs = JSON.parse(xhr.responseText);
+                var riders = JSON.parse(xhr.responseText);
                 for (i = 0; i < cabs.length; i++) {
                     drawRider(riders[i]);
                 }				
@@ -436,7 +438,14 @@ angular.module('starter.controllers', [])
 		riderMarker = new google.maps.Marker({
 			map: map,
 			position: new google.maps.LatLng(rider.Latitude, rider.Longitude),
-			title: 'Rider Waiting'
+			title: 'Rider Waiting',
+            icon: {
+                  path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                  fillOpacity: 1.0,
+                  fillColor: "#000000",
+                  strokeColor: "#000000",
+                  scale: 7 //pixels
+              }
 			});  
 		newriders.push(rider);
 	}
@@ -504,14 +513,14 @@ angular.module('starter.controllers', [])
 	}
 	
 	function incrementRiders() {
-		totalRiders++;	
-		totalText.innerHTML = '<strong>Passengers: ' + totalRiders + '</strong>';
+		capacity++;	
+		totalText.innerHTML = '<strong>Passengers: ' + capacity + '</strong>';
 	}
 	function decrementRiders() {
-		if (totalRiders > 0) {
-			totalRiders--;	
+		if (capacity > 0) {
+			capacity--;	
 		}
-		totalText.innerHTML = '<strong>Passengers: ' + totalRiders + '</strong>';
+		totalText.innerHTML = '<strong>Passengers: ' + capacity + '</strong>';
 	}
 	function IncrementRiderControl(controlDiv, map) {
 
@@ -624,19 +633,21 @@ angular.module('starter.controllers', [])
 	  totalText.style.fontSize = '12px';
 	  totalText.style.paddingLeft = '4px';
 	  totalText.style.paddingRight = '4px';
-	  totalText.innerHTML = '<strong>Passengers: ' + totalRiders + '</strong>';
+	  totalText.innerHTML = '<strong>Passengers: ' + capacity + '</strong>';
 	  incrementUI.appendChild(totalText);
 
 	  // Setup the click event listeners: simply set the map to Chicago.
 
 	}
+    
     function refresh() {
         setRouteCoordinates(); //Sets the details for routes        
 		setCabMarkers();
-		//setRiderMarkers():
+		setRiderMarkers();
         updateGPSLocation();
     }
-	  /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/
+	  
+    /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/
 	  initialize();
       //google.maps.event.addDomListener(window, 'load', initialize);
 	/*Everything after here was from example code (http://paulsutherland.net/ionic-and-google-maps-api/. 
