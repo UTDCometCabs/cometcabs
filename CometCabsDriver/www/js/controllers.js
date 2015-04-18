@@ -81,11 +81,9 @@ angular.module('starter.controllers', [])
     $scope.login = function() {
 		var routeIDDropDown = document.getElementById("dd1"); 
 		var cabIDDropDown = document.getElementById("dd2"); 
-		alert("CabId: " + $scope.allCabs[cabIDDropDown.selectedIndex].CabId + " RouteId: " + $scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
+		//alert("CabId: " + $scope.allCabs[cabIDDropDown.selectedIndex].CabId + " RouteId: " + $scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
 		
-		
-        
-        /*var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+String($scope.data.username)+'&password='+String($scope.data.password)+'&cabId='+String($scope.allCabs)+'&routeId='+String($scope.allRoutes);
+		var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+String($scope.data.username)+'&password='+String($scope.data.password)+'&cabId='+String($scope.allCabs[cabIDDropDown.selectedIndex].CabId)+'&routeId='+String($scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
  
             var xhr = createCORSRequest('POST', url);
  
@@ -97,14 +95,20 @@ angular.module('starter.controllers', [])
             // Response handlers.
             xhr.onload = function () {
                 var response = JSON.parse(xhr.responseText);
-                alert(xhr.responseText);
+                if(response == '') {
+                    alert ("Your login credentials are incorrect. Please try again.");
+                } else {
+                    activityId = String(response.ActivityId);
+                    sharedActivity.setActivity(activityId);
+                    $state.go('driver');
+                }
             };
  
             xhr.onerror = function () {
                 alert('Error making the request.');
             };
  
-            xhr.send();*/
+            xhr.send();
     }
     
 	/*$http.get('routeData.json').success(function(data) {
@@ -218,8 +222,9 @@ angular.module('starter.controllers', [])
 			navigator.geolocation.getCurrentPosition(function(position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
+
 			//var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId=4&currentCapacity=2&currentStatus=On%20Duty&latitude=' + latitude + '&longitude=' + longitude;
+			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId='+ sharedActivity.getActivity() +'&currentCapacity=2&currentStatus=on-duty&latitude=' + latitude + '&longitude=' + longitude;
  
             var xhr = createCORSRequest('POST', url);
  
@@ -307,6 +312,7 @@ angular.module('starter.controllers', [])
 		}
 		newroutes = [];
 	}
+    
   function setCabColor(status) {
 	var color = "#008000" ; // == "onduty"
 	if (status == "full") {
@@ -360,6 +366,32 @@ angular.module('starter.controllers', [])
             xhr.send();
 
   }
+    
+      function drawCab(cab) {
+          cabMarker = new google.maps.Marker({
+              map: map,
+              position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
+              icon: {
+                  path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                  fillOpacity: 1.0,
+                  fillColor: setCabColor(cab.Status),
+                  strokeColor: setCabColor(cab.Status),
+                  scale: 7 //pixels
+              }
+          });
+          newcabs.push(cabMarker);
+      }
+    
+    function removeOldCabs(){
+        for (i = 0; i< cabs.length; i++){
+            cabs[i].setMap(null);
+        }
+        cabs = [];
+		for (i = 0; i < newcabs.length; i++) {
+			cabs.push(newcabs[i]);
+		}
+		newcabs = [];
+    }
   
     function setRiderMarkers() {
   		/*Code to add a marker representing a single icon to represent a cab.
@@ -408,6 +440,7 @@ angular.module('starter.controllers', [])
 			});  
 		newriders.push(rider);
 	}
+    
 	/*Takes all the cabs in the list of already existing riders and removes
 	  them from the map. The riders last fetched remain and are copied for
 	  removal during the next cycle. */
@@ -422,35 +455,6 @@ angular.module('starter.controllers', [])
 		newriders = [];
 	}
      
-  function drawCab(cab) {
-	cabMarker = new google.maps.Marker({
-		map: map,
-		position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
-		icon: {
-		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-		fillOpacity: 1.0,
-		fillColor: setCabColor(cab.Status),
-		strokeOpacity: 1.0,
-		strokeColor: setCabColor(cab.Status),
-		strokeWeight: 1.0,				
-		scale: 7 //pixels
-		}		
-		});  
-      newcabs.push(cabMarker);
-  }
-    
-    function removeOldCabs(){
-        for (i = 0; i< cabs.length; i++){
-            cabs[i].setMap(null);
-        }
-        cabs = [];
-		for (i = 0; i < newcabs.length; i++) {
-			cabs.push(newcabs[i]);
-		}
-		newcabs = [];
-    }
-
-	
   function toggleFull() {
 	full = !full;
 	if (full) {
@@ -464,6 +468,7 @@ angular.module('starter.controllers', [])
 	}
   
   }
+    
   function FullControl(controlDiv, map) {
 
 	  // Set CSS styles for the DIV containing the control

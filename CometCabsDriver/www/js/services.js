@@ -25,13 +25,13 @@ angular.module('starter.services', [])
 })
 
 .service('sharedActivity', function () {
-        var activity = '';
+        var activity = "";
 
         return {
             getActivity: function () {
                 return activity;
             },
-            setProperty: function(value) {
+            setActivity: function(value) {
                 activity = value;
             }
         };
