@@ -54,10 +54,11 @@ angular.module('starter.controllers', [])
                 //$scope.RouteIDSelect = "1";
                 $scope.allCabs = resources.Cabs;
                 //$scope.CabIDSelect = "1";
+                $scope.allUsers = resources.Users;
             };
  
             xhr.onerror = function () {
-                alert('Error making the request.');
+                alert('Error making the load login screen request.');
             };
  
             xhr.send();
@@ -80,39 +81,52 @@ angular.module('starter.controllers', [])
     
     $scope.login = function() {
 		var routeIDDropDown = document.getElementById("dd1"); 
-		var cabIDDropDown = document.getElementById("dd2"); 
+		var cabIDDropDown = document.getElementById("dd2");
+        var userIDDropDown = document.getElementById("username");
+        alert(userIDDropDown.options[userIDDropDown.selectedIndex].text);
 		//alert("CabId: " + $scope.allCabs[cabIDDropDown.selectedIndex].CabId + " RouteId: " + $scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
 		
-		var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+String($scope.data.username)+'&password='+String($scope.data.password)+'&cabId='+String($scope.allCabs[cabIDDropDown.selectedIndex].CabId)+'&routeId='+String($scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
-            var cabCode = cabIDDropDown.options[cabIDDropDown.selectedIndex].text;
-            var routeName = routeIDDropDown.options[routeIDDropDown.selectedIndex].text;
- 
-            var xhr = createCORSRequest('POST', url);
- 
-            if (!xhr) {
-                alert('CORS not supported');
-                return;
-            }
- 
-            // Response handlers.
-            xhr.onload = function () {
-                var response = JSON.parse(xhr.responseText);
-                if(response == '') {
-                    alert ("Your login credentials are incorrect. Please try again.");
-                } else {
-                    activityId = String(response.ActivityId);
-                    sharedActivity.setActivity(activityId);
-                    sharedActivity.setCab(cabCode);
-                    sharedActivity.setRoute(routeName);
-                    $state.go('driver');
-                }
-            };
- 
-            xhr.onerror = function () {
-                alert('Error making the request.');
-            };
- 
-            xhr.send();
+        if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                
+                var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+userIDDropDown.options[userIDDropDown.selectedIndex].text+'&password='+$scope.data.password+'&cabId='+$scope.allCabs[cabIDDropDown.selectedIndex].CabId+'&routeId='+$scope.allRoutes[routeIDDropDown.selectedIndex].RouteId+'&longitude='+longitude+'&latitude='+latitude;
+
+                    var cabCode = cabIDDropDown.options[cabIDDropDown.selectedIndex].text;
+                    var routeName = routeIDDropDown.options[routeIDDropDown.selectedIndex].text;
+
+                    var xhr = createCORSRequest('POST', url);
+
+                    if (!xhr) {
+                        alert('CORS not supported');
+                        return;
+                    }
+
+                    // Response handlers.
+                    xhr.onload = function () {
+                        var response = JSON.parse(xhr.responseText);
+                        if(response == '') {
+                            alert ("Your login credentials are incorrect. Please try again.");
+                        } else {
+                            activityId = String(response.ActivityId);
+                            sharedActivity.setActivity(activityId);
+                            sharedActivity.setCab(cabCode);
+                            sharedActivity.setRoute(routeName);
+                            $state.go('driver');
+                        }
+                    };
+
+                    xhr.onerror = function () {
+                        alert('Error making the login request.');
+                        $state.go('driver'); //remove this
+                    };
+
+                    xhr.send();
+                });
+        } else {
+			alert("Geolocation is not supported by this browser.");
+		}
     }
     
 	/*$http.get('routeData.json').success(function(data) {
@@ -231,7 +245,7 @@ angular.module('starter.controllers', [])
 			speedTracker.updateSpeed(latitude, longitude, Date.now());
 
 			//var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId='+ sharedActivity.getActivity() +'&currentCapacity='+capacity+'&currentStatus='+status+'&latitude=' + latitude + '&longitude=' + longitude;
+			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId=' + sharedActivity.getActivity() + '&currentCapacity=' + capacity + '&latitude=' + latitude + '&longitude=' + longitude;
  
             var xhr = createCORSRequest('POST', url);
  
@@ -384,8 +398,10 @@ angular.module('starter.controllers', [])
                   path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
                   fillColor: setCabColor(cab.Status),
+                  strokeOpacity: 1.0,
                   strokeColor: setCabColor(cab.Status),
-                  scale: 7 //pixels
+                  scale: 7, //pixels
+                  strokeWeight: 1.0
               }
           });
           newcabs.push(cabMarker);
@@ -427,7 +443,8 @@ angular.module('starter.controllers', [])
             // Response handlers.
             xhr.onload = function () {
                 var riders = JSON.parse(xhr.responseText);
-                for (i = 0; i < cabs.length; i++) {
+                //alert(riders);
+                for (i = 0; i < riders.length; i++) {
                     drawRider(riders[i]);
                 }				
                 removeOldRiders();
@@ -442,16 +459,19 @@ angular.module('starter.controllers', [])
   }
   
     function drawRider(rider) {
+        //alert("hello");
 		riderMarker = new google.maps.Marker({
 			map: map,
 			position: new google.maps.LatLng(rider.Latitude, rider.Longitude),
 			title: 'Rider Waiting',
             icon: {
-                  path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                  path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
-                  fillColor: "#000000",
+                  fillColor: "#0000FF",
+                strokeOpacity: 1.0,
                   strokeColor: "#000000",
-                  scale: 7 //pixels
+                  scale: 5, //pixels
+                strokeWeight: 1.0
               }
 			});  
 		newriders.push(rider);

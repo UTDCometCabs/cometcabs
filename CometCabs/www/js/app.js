@@ -238,15 +238,14 @@ angular.module('starter', ['ionic'])
 	$scope.iWantToRide = function() {
 		var btn = document.getElementById("iWantToRideButton");
 		var activeColor = 'green';
+        var interestId = '';
 		
 		if(btn.style.color != activeColor) {
-            var now = new Date();
-            var nowFormatted = now.getMonth() + 1 + '/' + now.getDate() + '/' + now.getFullYear() + ' ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
-                var url = 'http://cometcabs.azurewebsites.net/api/Interests?flagTime='+nowFormatted+'&longitude='+longitude+'&latitude='+latitude;
+                var url = 'http://cometcabs.azurewebsites.net/api/Interests?longitude='+longitude+'&latitude='+latitude;
 
                 var xhr = createCORSRequest('POST', url);
 
@@ -258,7 +257,8 @@ angular.module('starter', ['ionic'])
                 // Response handlers.
                 xhr.onload = function () {
                     var id = JSON.parse(xhr.responseText);
-                    var interestId = id.interestId;
+                    alert(id);
+                    interestId = id.interestId;
                     //this is telling me undefined even though xhr.responseText is giving an id back
                     alert(interestId);
                 };
@@ -274,6 +274,27 @@ angular.module('starter', ['ionic'])
             }
 			btn.style.color = activeColor;
 		} else {
+                var url = 'http://cometcabs.utd.edu/api/CancelInterest?interestId=' + interestId;
+
+                var xhr = createCORSRequest('POST', url);
+
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
+                }
+
+                // Response handlers.
+                xhr.onload = function () {
+                    var response = JSON.parse(xhr.responseText);
+                    alert(response);
+                };
+
+                xhr.onerror = function () {
+                    alert('Error making the request.');
+                };
+
+                xhr.send();
+
 			btn.style.color = 'white';
 		}
 	};

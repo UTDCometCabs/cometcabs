@@ -28,6 +28,7 @@ angular.module('starter.services', [])
 	var activity = "";
 	var cabCode = "";
 	var routeName = "";
+    var username = "";
 
 	return {
 		getActivity: function () {
@@ -47,6 +48,12 @@ angular.module('starter.services', [])
 		},
 		setRoute: function(value) {
 			routeName = value;
+		},
+        getUsername: function () {
+			return username;
+		},
+		setUsername: function(value) {
+			username = value;
 		}
 	};
 })

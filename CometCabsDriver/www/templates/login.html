@@ -1,13 +1,14 @@
 <ion-view view-title="Comet Cabs Driver" name="login-view">
 	<ion-content class="padding">
-		<div class="list list-inset">
-			<label class="item item-input">
-				<input type="text" placeholder="Username" ng-model="data.username">
+        <div>
+			<label class="item item-input item-select">
+				<div class="input-label">
+					Username
+				</div>
+				<select id ="username" ng-model="usernameSelect" ng-options="obj.UserId as obj.UserName for obj in allUsers">
+				</select>
 			</label>
-			<label class="item item-input">
-				<input type="password" placeholder="Password" ng-model="data.password">
-			</label>
-		</div>
+      </div>
 		<div>
 			<label class="item item-input item-select">
 				<div class="input-label">
@@ -26,6 +27,11 @@
 				</select>
 			</label>
       </div>
+        <div class="list list-inset">
+			<label class="item item-input">
+				<input type="password" placeholder="Password" ng-model="data.password">
+			</label>
+		</div>
       <button class="button button-block button-dark" ng-click="login()">Login</button>
   </ion-content>
 </ion-view>
