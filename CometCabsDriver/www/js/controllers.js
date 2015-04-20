@@ -126,7 +126,7 @@ angular.module('starter.controllers', [])
 	});*/
 })
 
-.controller('MapCtrl', function($scope, $ionicLoading, $compile, sharedActivity) {
+.controller('MapCtrl', function($scope, $ionicLoading, $compile, sharedActivity, speedTracker) {
 			
 	var rutfordMarker; 
 	var phase1SouthMarker;
@@ -227,6 +227,8 @@ angular.module('starter.controllers', [])
 			navigator.geolocation.getCurrentPosition(function(position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
+				
+			speedTracker.updateSpeed(latitude, longitude, Date.now());
 
 			//var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId='+ sharedActivity.getActivity() +'&currentCapacity='+capacity+'&currentStatus='+status+'&latitude=' + latitude + '&longitude=' + longitude;
@@ -359,7 +361,7 @@ angular.module('starter.controllers', [])
             xhr.onload = function () {
                 var cabs = JSON.parse(xhr.responseText);
                 //need to determine correct status here
-                alert(cabs[0].CabCode
+                //alert(cabs[0].CabCode);
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
@@ -645,11 +647,25 @@ angular.module('starter.controllers', [])
 
 	}
     
+	function speedScreen() {
+		var speedThreshold = 1;
+		if(speedTracker.getSpeed() > speedThreshold) {
+			// Black out screen/map
+			$('#screen').css({	"display": "block", opacity: 1.0, "width":$(document).width(),"height":$(document).height()});
+			$('body').css({"overflow":"hidden"});
+			$('#box').css({"display": "block"});
+		} else {
+			$(this).css("display", "none");
+			$('#screen').css("display", "none");
+		}
+	}
+	
     function refresh() {
         setRouteCoordinates(); //Sets the details for routes        
 		setCabMarkers();
 		setRiderMarkers();
         updateGPSLocation();
+		speedScreen();
     }
 	  
     /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/

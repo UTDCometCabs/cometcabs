@@ -24,3 +24,27 @@ div.container4 p {
 .scroll {
   height: 100%;
 }
+
+#box
+{
+	width: 150px;
+	height: 150px;
+	background: #FFF;
+	border: black solid 5px;
+	text-align: center;
+	position: absolute;
+	margin-left: -75px;
+	margin-top: -75px;
+	left: 50%;
+	top: 50%;
+	z-index: 20;
+	display: none;
+}
+
+#screen
+{
+	position: absolute;
+	left: 0;
+	top: 0;
+	background: #000;
+}

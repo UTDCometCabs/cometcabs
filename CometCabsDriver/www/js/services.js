@@ -25,31 +25,77 @@ angular.module('starter.services', [])
 })
 
 .service('sharedActivity', function () {
-        var activity = "";
-        var cabCode = "";
-        var routeName = "";
+	var activity = "";
+	var cabCode = "";
+	var routeName = "";
 
-        return {
-            getActivity: function () {
-                return activity;
-            },
-            setActivity: function(value) {
-                activity = value;
-            },
-            getCab: function () {
-                return cabCode;
-            },
-            setCab: function(value) {
-                cabCode = value;
-            },
-            getRoute: function () {
-                return routeName;
-            },
-            setRoute: function(value) {
-                routeName = value;
-            }
-        };
-    })
+	return {
+		getActivity: function () {
+			return activity;
+		},
+		setActivity: function(value) {
+			activity = value;
+		},
+		getCab: function () {
+			return cabCode;
+		},
+		setCab: function(value) {
+			cabCode = value;
+		},
+		getRoute: function () {
+			return routeName;
+		},
+		setRoute: function(value) {
+			routeName = value;
+		}
+	};
+})
+
+.service('speedTracker', function () {
+	var speed = 0;
+	var latitude = 0;
+	var longitude = 0;
+	var timeStamp = -1;
+	
+	return {
+		getSpeed: function () {
+			return speed;
+		},
+		setSpeed: function(value) {
+			speed = value;
+		},
+		updateSpeed: function(newLatitude, newLongitude, newTimeStamp) {
+			if(timeStamp != -1 && newTimeStamp > timeStamp) {
+				var longDiff = Math.abs(newLongitude - longitude);
+				var latDiff = Math.abs(newLatitude - latitude);
+				var timeDiff = Math.abs(newTimeStamp - timeStamp)/(1000*60*60); // in hours
+				var distanceDiff = Math.sqrt(longDiff*longDiff + latDiff*latDiff)
+				speed = distanceDiff/timeDiff;
+			}
+			latitude = newLatitude;
+			longitude = newLongitude;
+			timeStamp = newTimeStamp;
+		},
+		getLongitude: function () {
+			return longitude;
+		},
+		setLongitude: function(value) {
+			longitude = value;
+		},
+		getLatitude: function () {
+			return latitude;
+		},
+		setLatitude: function(value) {
+			latitude = value;
+		},
+		getTimeStamp: function () {
+			return latitude;
+		},
+		setTimeStamp: function(value) {
+			timeStamp = value;
+		}
+	};
+})
 
 .factory('Chats', function() {
   // Might use a resource here that returns a JSON array
