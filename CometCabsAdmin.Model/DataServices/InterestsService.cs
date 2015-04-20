@@ -43,12 +43,12 @@ namespace CometCabsAdmin.Model.DataServices
             }
         }
 
-        public void UpdateCab(Entities.Interests interests)
+        public void UpdateInterest(Entities.Interests interests)
         {
             _interestsRepository.Update(interests);
         }
 
-        public void DeleteCab(Entities.Interests interests)
+        public void DeleteInterest(Entities.Interests interests)
         {
             _interestsRepository.Delete(interests);
         }

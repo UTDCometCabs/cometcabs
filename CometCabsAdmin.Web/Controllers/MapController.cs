@@ -180,9 +180,9 @@ namespace CometCabsAdmin.Web.Controllers
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult DeleteRoute(string Id)
+        public ActionResult DeleteRoute(string id)
         {
-            Route route = _routeService.GetRoute(long.Parse(Id));
+            Route route = _routeService.GetRoute(long.Parse(id));
 
             if (route != null)
             {

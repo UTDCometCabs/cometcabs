@@ -12,7 +12,7 @@ namespace CometCabsAdmin.Model.Entities
         public string CabCode { get; set; }
         public string CabDesc { get; set; }
         public int MaxCapacity { get; set; }
-        public bool OnDutyStatus { get; set; }
+        public string OnDutyStatus { get; set; }
 
         public virtual ICollection<CabActivity> CabActivity { get; set; }
     }

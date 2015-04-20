@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
+using System.Web.Mvc;
 
 namespace CometCabsAdmin.Web.Models
 {
@@ -43,7 +44,7 @@ namespace CometCabsAdmin.Web.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [Display(Name="Confirm Password")]
+        [Display(Name = "Confirm Password")]
         [DataType(DataType.Password)]
         public string PasswordConfirm { get; set; }
 
@@ -53,8 +54,14 @@ namespace CometCabsAdmin.Web.Models
     [Serializable]
     public class UserTable
     {
+        public long Id { get; set; }
         public string UserName { get; set; }
         public string FullName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string EmailAddress { get; set; }
         public string RoleName { get; set; }
+        public string Address { get; set; }
+        public SelectListItem SelectedRole { get; set; }
     }
 }

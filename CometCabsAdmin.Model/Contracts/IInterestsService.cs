@@ -12,7 +12,7 @@ namespace CometCabsAdmin.Model.Contracts
         IQueryable<Interests> GetInterests();
         Interests GetInterest(long id);
         long InsertInterest(Interests interests);
-        void UpdateCab(Interests interests);
-        void DeleteCab(Interests interests);
+        void UpdateInterest(Interests interests);
+        void DeleteInterest(Interests interests);
     }
 }

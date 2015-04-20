@@ -36,12 +36,53 @@ namespace CometCabsAdmin.Web.ApiControllers
         // GET api/<controller>
         public HttpResponseMessage Get()
         {
+            List<User> users = _userService.GetUsers()
+                .Where(s => s.UserRole.RoleName.ToLower().Equals("driver"))
+                .ToList();
+
+            List<CabActivity> cabActivity = _cabService.GetCabActivity()
+                .Where(s => s.Cab.OnDutyStatus.ToLower().Equals("on-duty"))
+                .OrderByDescending(s => s.Id)
+                .ToList();
+
+            int indexUsers = 0;
+            int indexActivity = 0;
+
+            while (indexUsers < users.Count())
+            {
+                bool notFound = true;
+
+                while ((indexActivity < cabActivity.Count()) && (notFound))
+                {
+                    notFound = users[indexUsers].Id != cabActivity[indexActivity].DriverId;
+
+                    if (!notFound)
+                    {
+                        users.RemoveAt(indexUsers);
+                        indexUsers = 0;
+                    }
+
+                    indexActivity++;
+                }
+
+                indexActivity = 0;
+                indexUsers++;
+            }
+
             List<Route> routes = _routeService.GetRoutes().ToList();
-            List<Cab> cabs = _cabService.GetCabs().ToList();
+            List<Cab> cabs = _cabService.GetCabs()
+                .Where(s => s.OnDutyStatus.ToLower().Equals("off-duty"))
+                .ToList();
+
             string result = "[]";
 
             dynamic info = new
             {
+                Users = users.Select(t => new
+                {
+                    UserId = t.Id,
+                    UserName = t.Username,
+                }),
                 Cabs = cabs.Select(t => new
                 {
                     CabId = t.Id,
@@ -71,27 +112,53 @@ namespace CometCabsAdmin.Web.ApiControllers
         }
 
         // POST api/<controller>
-        public HttpResponseMessage Post(string userName, string password, string cabId, string routeId)
+        public HttpResponseMessage Post(string userId, string password, string cabId, string routeId, string longitude, string latitude)
         {
             string passwordEncrypted = _encryption.Encrypt(password);
             string result = "[]";
+            long lgUserId = long.Parse(userId);
 
             CometCabsAdmin.Model.Entities.User user = _userService.GetUsers()
-                .Where(u => u.Username == userName && u.Password == passwordEncrypted).FirstOrDefault();
+                .Where(u => u.Id == lgUserId && u.Password == passwordEncrypted && u.UserRole.RoleName.ToLower() == "driver").FirstOrDefault();
 
             if (user != null)
             {
-                long activityId = _cabService.InsertCabActivity(new CabActivity
-                 {
-                     LoginTime = DateTime.Now,
-                     DriverId = user.Id,
-                     CabId = long.Parse(cabId),
-                     RouteId = long.Parse(routeId),
-                     CreatedBy = user.Username,
-                     CreateDate = DateTime.Now,
-                     IPAddress = IPAddress,
+                long lgCabId = long.Parse(cabId);
+                Cab cab = _cabService.GetCab(lgCabId);
 
-                 });
+                if (cab != null)
+                {
+                    cab.OnDutyStatus = "on-duty";
+                    _cabService.UpdateCab(cab);
+                }
+
+                List<CabCoordinate> cabCoordinate = new List<CabCoordinate>();
+                CabActivity cabActivity = new CabActivity
+                {
+                    LoginTime = DateTime.Now,
+                    DriverId = user.Id,
+                    CabId = lgCabId,
+                    RouteId = long.Parse(routeId),
+                    CreatedBy = user.Username,
+                    CreateDate = DateTime.Now,
+                    IPAddress = IPAddress,
+                };
+
+                cabCoordinate.Add(new CabCoordinate
+                {
+                    Latitude = float.Parse(latitude),
+                    Longitude = float.Parse(longitude),
+                    CurrentStatus = cab.OnDutyStatus,
+                    CurrentDateTime = DateTime.Now,
+                    CurrentCapacity = 0,
+                    CreatedBy = user.Username,
+                    CreateDate = DateTime.Now,
+                    IPAddress = IPAddress,
+                });
+
+                cabActivity.CabCoordinate = cabCoordinate;
+
+                long activityId = _cabService.InsertCabActivity(cabActivity);
 
                 dynamic info = new
                 {

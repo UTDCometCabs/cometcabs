@@ -2,10 +2,18 @@
 
 @{
     ViewBag.Title = "Manage Cabs";
+    List<SelectListItem> status = new List<SelectListItem>();
+    status.Add(new SelectListItem { Text = "On Duty", Value = "on-duty" });
+    status.Add(new SelectListItem { Text = "Off Duty", Value = "off-duty" });
+    status.Add(new SelectListItem { Text = "Inactive", Value = "inactive" });
 }
 <div class="hidden" id="cabTable">
     @Html.Raw(Json.Encode(Model.CabTable))
 </div>
+<div class="hidden" id="status">
+    @Html.Raw(Json.Encode(status))
+</div>
+
 
 <h2>@ViewBag.Title</h2>
 <div id="scope" ng-controller="CabController">
@@ -78,17 +86,14 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-3">
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" ng-model="onDutyStatus" />@Html.DisplayNameFor(model => model.OnDutyStatus)
-                                    </label>
-                                </div>
+                            @Html.LabelFor(model => model.OnDutyStatus, new { @class = "col-sm-3 control-label" })
+                            <div class="col-sm-4">
+                                <select ng-model="selectedStatus" ng-options="item.Text for item in status">
+                                    <option value="">-- select cab status --</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="col-sm-offset-3 col-sm-2">
+                            <div class="col-sm-offset-3 col-sm-2">
                             <button type="button" ng-click="saveCab()">Save</button>
                             <button type="reset" ng-click="discardChanges()">Cancel</button>
                         </div>
@@ -138,19 +143,21 @@
 
             app.controller('CabController', ['$scope', '$http', '$route', '$timeout', 'ngDialog', function ($scope, $http, $route, $timeout, ngDialog) {
                 $scope.cabTable = JSON.parse($('#cabTable').html());
+                $scope.status = JSON.parse($('#status').html());
+                $scope.id = 0;
                 $scope.editMode = false;
                 $scope.cabCode = '';
                 $scope.cabDesc = '';
                 $scope.maxCapacity = 0;
-                $scope.onDutyStatus = true;
-                
+                $scope.selectedStatus = '';
+
                 $scope.saveCab = function () {
                     var cab = {
+                        id: $scope.id,
                         cabCode: $scope.cabCode,
                         cabDesc: $scope.cabDesc,
                         maxCapacity: $scope.maxCapacity,
-                        emailAddress: $scope.emailAddress,
-                        onDutyStatus: $scope.onDutyStatus,
+                        onDutyStatus: JSON.stringify($scope.selectedStatus),
                     }
 
                     $http({ method: 'POST', url: '/Cabs/SaveCab', contentType: 'application/json', data: cab })
@@ -179,8 +186,13 @@
                     $scope.editMode = true;
                 };
 
-                $scope.editUser = function () {
-
+                $scope.editUser = function (cab) {  
+                    $scope.editMode = true;
+                    $scope.id = eval(cab.Id);
+                    $scope.cabCode = cab.CabCode;
+                    $scope.cabDesc = cab.CabDesc;
+                    $scope.maxCapacity = eval(cab.MaxCapacity);
+                    $scope.selectedStatus = cab.Status;
                 };
 
                 function clearForm() {
@@ -188,7 +200,7 @@
                     $scope.cabCode = '';
                     $scope.cabDesc = '';
                     $scope.maxCapacity = 0;
-                    $scope.onDutyStatus = true;
+                    $scope.selectedStatus = '';
                 }
             }]);
         })(window.angular);

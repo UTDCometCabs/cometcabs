@@ -43,8 +43,8 @@ namespace CometCabsAdmin.Model.DataServices
 
         public void DeleteUser(User user)
         {
-            _userProfileRepository.Delete(user.UserProfile);
             _userRolesRepository.Delete(user.UserRole);
+            _userProfileRepository.Delete(user.UserProfile);
             _userRepository.Delete(user);
         }
 

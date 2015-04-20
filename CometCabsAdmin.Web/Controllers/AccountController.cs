@@ -48,9 +48,19 @@ namespace CometCabsAdmin.Web.Controllers
             {
                 table.Add(new UserTable
                 {
+                    Id = user.Id,
                     UserName = user.Username,
                     FullName = user.UserProfile.NameLastFirst,
+                    FirstName = user.UserProfile.FirstName,
+                    LastName = user.UserProfile.LastName,
+                    EmailAddress = user.EmailAddress,
                     RoleName = user.UserRole.RoleName,
+                    Address = user.UserProfile.Address,
+                    SelectedRole = new SelectListItem
+                    {
+                        Value = user.UserRole.RoleName,
+                        Text = user.UserRole.RoleName == "Admin" ? "Administrator" : user.UserRole.RoleName,
+                    },
                 });
             }
 
@@ -75,58 +85,69 @@ namespace CometCabsAdmin.Web.Controllers
 
                     if (password1.SequenceEqual(password2))
                     {
-                        User user = new User
-                        {
-                            Username = userName,
-                            EmailAddress = emailAddress,
-                            Password = _encryption.Encrypt(password2),
-                            CreatedBy = HttpContext.User.Identity.Name,
-                            CreateDate = DateTime.Now,
-                            IPAddress = IPAddress,
-                            UserProfile = new UserProfile
-                            {
-                                FirstName = firstName,
-                                LastName = lastName,
-                                Address = address,
-                                IPAddress = IPAddress,
-                            },
-                            UserRole = new UserRoles
-                            {
-                                RoleName = selectedRole.Value,
-                                CreatedBy = HttpContext.User.Identity.Name,
-                                CreateDate = DateTime.Now,
-                                IPAddress = IPAddress,
-                            }
-                        };
+                        long userId = 0;
 
-                        if (!string.IsNullOrWhiteSpace(id))
+                        if (!string.IsNullOrWhiteSpace(id) && long.TryParse(id, out userId))
                         {
-                            user.Id = int.Parse(id);
-                            user.UpdateDate = DateTime.Now;
-                            user.UpdatedBy = HttpContext.User.Identity.Name;
-                            user.UserProfile.UpdateDate = DateTime.Now;
-                            user.UserProfile.UpdatedBy = HttpContext.User.Identity.Name;
-                            user.UserRole.UpdateDate = DateTime.Now;
-                            user.UserRole.UpdatedBy = HttpContext.User.Identity.Name;
+                            User user = _userService.GetUser(userId);
 
-                            _userService.UpdateUser(user);
-                        }
-                        else
-                        {
-                            if (!_userService.GetUsers().Any(s => (s.Username == userName)))
+                            if (user == null)
                             {
-                                user.CreateDate = DateTime.Now;
-                                user.CreatedBy = HttpContext.User.Identity.Name;
-                                user.UserProfile.CreateDate = DateTime.Now;
-                                user.UserProfile.CreatedBy = HttpContext.User.Identity.Name;
-                                user.UserRole.CreateDate = DateTime.Now;
-                                user.UserRole.CreatedBy = HttpContext.User.Identity.Name;
+                                if (!_userService.GetUsers().Any(s => (s.Username == userName)))
+                                {
+                                    user = new User
+                                   {
+                                       Username = userName,
+                                       EmailAddress = emailAddress,
+                                       Password = _encryption.Encrypt(password2),
+                                       CreatedBy = HttpContext.User.Identity.Name,
+                                       CreateDate = DateTime.Now,
+                                       IPAddress = IPAddress,
+                                       UserProfile = new UserProfile
+                                       {
+                                           FirstName = firstName,
+                                           LastName = lastName,
+                                           Address = address,
+                                           CreatedBy = HttpContext.User.Identity.Name,
+                                           CreateDate = DateTime.Now,
+                                           IPAddress = IPAddress,
+                                       },
+                                       UserRole = new UserRoles
+                                       {
+                                           RoleName = selectedRole.Value,
+                                           CreatedBy = HttpContext.User.Identity.Name,
+                                           CreateDate = DateTime.Now,
+                                           IPAddress = IPAddress,
+                                       }
+                                   };
 
-                                _userService.InsertUser(user);
+                                    _userService.InsertUser(user);
+                                }
+                                else
+                                {
+                                    message = string.Format("{0} already exists", userName);
+                                }
                             }
                             else
                             {
-                                message = string.Format("{0} already exists", userName);
+                                user.Username = userName;
+                                user.EmailAddress = emailAddress;
+                                user.UserProfile.FirstName = firstName;
+                                user.UserProfile.LastName = lastName;
+                                user.UserProfile.Address = address;
+                                user.UserProfile.IPAddress = IPAddress;
+                                user.UserRole.RoleName = selectedRole.Value;
+                                user.UserRole.CreatedBy = HttpContext.User.Identity.Name;
+                                user.UserRole.CreateDate = DateTime.Now;
+                                user.UserRole.IPAddress = IPAddress;
+                                user.UpdateDate = DateTime.Now;
+                                user.UpdatedBy = HttpContext.User.Identity.Name;
+                                user.UserProfile.UpdateDate = DateTime.Now;
+                                user.UserProfile.UpdatedBy = HttpContext.User.Identity.Name;
+                                user.UserRole.UpdateDate = DateTime.Now;
+                                user.UserRole.UpdatedBy = HttpContext.User.Identity.Name;
+
+                                _userService.UpdateUser(user);
                             }
                         }
                     }
@@ -138,6 +159,19 @@ namespace CometCabsAdmin.Web.Controllers
             }
 
             return Content(message);
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        public ActionResult DeleteUser(string id)
+        {
+            User user = _userService.GetUser(long.Parse(id));
+
+            if (user != null)
+            {
+                _userService.DeleteUser(user);
+            }
+
+            return View("Index", new MapViewModel());
         }
 
         [AcceptVerbs(HttpVerbs.Post)]

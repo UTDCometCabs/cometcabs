@@ -162,8 +162,10 @@
     <Content Include="App_Code\ExtensionMethods.cs" />
     <Compile Include="ApiControllers\BaseController.cs" />
     <Compile Include="ApiControllers\CabActivityController.cs" />
+    <Compile Include="ApiControllers\CancelInterestController.cs" />
     <Compile Include="ApiControllers\InterestsController.cs" />
     <Compile Include="ApiControllers\LoginController.cs" />
+    <Compile Include="ApiControllers\LogoffController.cs" />
     <Compile Include="ApiModels\CabActivityModel.cs" />
     <Compile Include="ApiModels\InterestsModel.cs" />
     <Compile Include="ApiModels\RouteModel.cs" />
@@ -198,8 +200,10 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Images\Cab.png" />
     <Content Include="Content\Images\CometCabs-small.png" />
     <Content Include="Content\Images\CometCabs.png" />
+    <Content Include="Content\Images\Rider.png" />
     <Content Include="Content\ngDialog-custom-width.css" />
     <Content Include="Content\ngDialog-theme-default.css" />
     <Content Include="Content\ngDialog-theme-plain.css" />
@@ -285,8 +289,6 @@
     <Content Include="Views\Error\Index.cshtml" />
     <Content Include="Views\Account\UserAccount.cshtml" />
     <Content Include="Views\Map\Index.cshtml" />
-    <Content Include="Views\Map\_routeTable.cshtml" />
-    <Content Include="Views\Map\_routeForm.cshtml" />
     <Content Include="Views\Statistics\Index.cshtml" />
     <Content Include="Views\Statistics\_riderChart.cshtml" />
     <Content Include="Views\Cabs\Index.cshtml" />

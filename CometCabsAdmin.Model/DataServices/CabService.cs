@@ -82,6 +82,11 @@ namespace CometCabsAdmin.Model.DataServices
             _cabCoordinateRepository.Insert(coordinate);
         }
 
+        public void UpdateCabCoordinate(CabCoordinate coordinate)
+        {
+            _cabCoordinateRepository.Insert(coordinate);
+        }
+
         #endregion
     }
 }

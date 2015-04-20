@@ -21,7 +21,7 @@ namespace CometCabsAdmin.Web.Models
         [Display(Name = "Maximum Capacity")]
         public int MaxCapacity { get; set; }
 
-        [Display(Name = "On-duty")]
+        [Display(Name = "Cab Status")]
         public bool OnDutyStatus { get; set; }
 
         public List<CabTable> CabTable { get; set; }
@@ -30,7 +30,9 @@ namespace CometCabsAdmin.Web.Models
     [Serializable]
     public class CabTable
     {
+        public long Id { get; set; }
         public string CabCode { get; set; }
+        public string CabDesc { get; set; }
         public string MaxCapacity { get; set; }
         public string Status { get; set; }
     }

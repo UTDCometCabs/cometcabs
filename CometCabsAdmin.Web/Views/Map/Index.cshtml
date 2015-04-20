@@ -165,11 +165,6 @@
             // clickListener = google.maps.event.addListener(map, "click", getMapCoordinate);
         }
 
-        function getMapCoordinate(args) {
-            // var scope = angular.element($("#scope")).scope();
-            // scope.editRoute(args);
-        }
-
         // Snap a user-created polyline to roads and draw the snapped path
         function runSnapToRoad(path, color) {
             $.get('https://roads.googleapis.com/v1/snapToRoads', {

@@ -4,8 +4,7 @@
     ViewBag.Title = "Manage User Account";
     List<SelectListItem> roles = new List<SelectListItem>();
     roles.Add(new SelectListItem { Text = "Administrator", Value = "Admin" });
-    roles.Add(new SelectListItem { Text = "User/Rider", Value = "Rider" });
-    roles.Add(new SelectListItem { Text = "User/Driver", Value = "Driver" });
+    roles.Add(new SelectListItem { Text = "Driver", Value = "Driver" });
 }
 
 <div class="hidden" id="userTable">
@@ -48,11 +47,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="user in userTable" ng-click="editUser(user)">
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ user.UserName }}</td>
-                                <td>{{ user.FullName }}</td>
-                                <td>{{ user.RoleName }}</td>
+                            <tr ng-repeat="user in userTable">
+                                <td class="pointer" ng-click="editUser(user)">{{ $index + 1 }}</td>
+                                <td class="pointer" ng-click="editUser(user)">{{ user.UserName }}</td>
+                                <td class="pointer" ng-click="editUser(user)">{{ user.FullName }}</td>
+                                <td class="pointer" ng-click="editUser(user)">{{ user.RoleName }}</td>
                                 <td class="icon glyphicon glyphicon-trash" ng-click="deleteUser(user)" title="Delete user"></td>
                             </tr>
                         </tbody>
@@ -99,13 +98,13 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" ng-show="userId == 0">
                             @Html.LabelFor(model => model.Password, new { @class = "col-sm-3 control-label" })
                             <div class="col-sm-4">
                                 <input type="password" class="form-control" ng-model="password1" />
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" ng-show="userId == 0">
                             @Html.LabelFor(model => model.PasswordConfirm, new { @class = "col-sm-3 control-label" })
                             <div class="col-sm-4">
                                 <input type="password" class="form-control" ng-model="password2" />
@@ -143,6 +142,26 @@
         </div>
     </script>
     <script type="text/javascript">
+        function getObjects(obj, key, val) {
+            var objects = [];
+            for (var i in obj) {
+                if (!obj.hasOwnProperty(i)) continue;
+                if (typeof obj[i] == 'object') {
+                    objects = objects.concat(getObjects(obj[i], key, val));
+                } else
+                    //if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
+                    if (i == key && obj[i] == val || i == key && val == '') { //
+                        objects.push(obj);
+                    } else if (obj[i] == val && key == '') {
+                        //only add if the object is not already in the array
+                        if (objects.lastIndexOf(obj) == -1) {
+                            objects.push(obj);
+                        }
+                    }
+            }
+            return objects;
+        }
+
         (function (angular) {
             'use strict';
             var app = angular.module('CometCabs', ['ngRoute', 'ngDialog']);
@@ -165,10 +184,11 @@
             // TODO: edit user
             // TODO: delete user
 
-            app.controller('UserController', ['$scope', '$http', '$route', '$timeout','ngDialog', function ($scope, $http, $route, $timeout, ngDialog) {
+            app.controller('UserController', ['$scope', '$http', '$route', '$timeout', 'ngDialog', function ($scope, $http, $route, $timeout, ngDialog) {
                 $scope.userTable = JSON.parse($('#userTable').html());
                 $scope.roles = JSON.parse($('#roles').html());
                 $scope.editMode = false;
+                $scope.userId = 0;
                 $scope.userName = '';
                 $scope.firstName = '';
                 $scope.lastName = '';
@@ -180,6 +200,7 @@
 
                 $scope.saveUser = function () {
                     var user = {
+                        id: $scope.userId,
                         userName: $scope.userName,
                         firstName: $scope.firstName,
                         lastName: $scope.lastName,
@@ -189,11 +210,10 @@
                         password1: $scope.password1,
                         password2: $scope.password2,
                         address: $scope.address,
-                    }
+                    };
 
                     $http({ method: 'POST', url: '/Account/SaveUser', contentType: 'application/json', data: user })
                         .success(function (data) {
-                            // resetMap();
                             if (data === '') {
                                 location.href = '/Account/UserAccount'
                             } else {
@@ -205,7 +225,7 @@
                         .error(function (data, status, headers, config) {
                             // called asynchronously if an error occurs
                             // or server returns response with an error status.
-                            alert(data + ' ' + status + ' ' + headers + ' ' + config)
+                            alert(data + ' ' + status + ' ' + headers + ' ' + config);
                         });
                 };
 
@@ -217,12 +237,44 @@
                     $scope.editMode = true;
                 };
 
-                $scope.editUser = function () {
+                $scope.editUser = function (user) {
+                    $scope.editMode = true;
+                    $scope.userId = user.Id;
+                    $scope.userName = user.UserName;
+                    $scope.firstName = user.FirstName;
+                    $scope.lastName = user.LastName;
+                    $scope.emailAddress = user.EmailAddress;
+                    $scope.selectedRole = getObjects($scope.roles, 'Value', 'Admin');
+                    $scope.address = user.Address;
+                };
 
+                $scope.deleteUser = function (user) {
+                    ngDialog.openConfirm({
+                        template: 'delete-dialog',
+                        className: 'ngdialog-theme-default',
+                        scope: $scope
+                    }).then(function () {
+                        $http({ method: 'POST', url: '/Account/DeleteUser', contentType: 'application/json', data: user })
+                            .success(function (data) {
+                                if (data === '') {
+                                    location.href = '/Account/UserAccount'
+                                } else {
+                                    $timeout(function () {
+                                        angular.element('#status-caption').fadeToggle(1000);
+                                    }, 5000);
+                                }
+                            })
+                            .error(function (data, status, headers, config) {
+                                // called asynchronously if an error occurs
+                                // or server returns response with an error status.
+                                alert(data + ' ' + status + ' ' + headers + ' ' + config);
+                            });
+                    });
                 };
 
                 function clearForm() {
                     $scope.editMode = false;
+                    $scope.userId = 0;
                     $scope.userName = '';
                     $scope.firstName = '';
                     $scope.lastName = '';
@@ -232,8 +284,6 @@
                     $scope.password2 = '';
                     $scope.address = '';
                 }
-
-
             }]);
         })(window.angular);
     </script>

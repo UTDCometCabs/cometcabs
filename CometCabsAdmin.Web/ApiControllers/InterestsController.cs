@@ -40,6 +40,7 @@ namespace CometCabsAdmin.Web.ApiControllers
             {
                 InterestsModel model = new InterestsModel
                 {
+                    InterestId = interest.Id,
                     FlagTime = interest.FlagTime,
                     Longitude = interest.Longitude,
                     Latitude = interest.Latitude,
@@ -49,6 +50,7 @@ namespace CometCabsAdmin.Web.ApiControllers
             }
 
             string result = JsonConvert.SerializeObject(models);
+
             response.Content = new StringContent(result, Encoding.UTF8, "application/json");
 
             return response;
@@ -66,13 +68,13 @@ namespace CometCabsAdmin.Web.ApiControllers
         }
 
         // POST: api/Interests
-        public HttpResponseMessage Post(string flagTime, string longitude, string latitude)
+        public HttpResponseMessage Post(string longitude, string latitude)
         {
             HttpResponseMessage response = this.Request.CreateResponse(HttpStatusCode.OK);
 
             Interests interest = new Interests
             {
-                FlagTime = DateTime.Parse(flagTime),
+                FlagTime = DateTime.Now,
                 Longitude = float.Parse(longitude),
                 Latitude = float.Parse(latitude),
                 CreatedBy = "rider's app",

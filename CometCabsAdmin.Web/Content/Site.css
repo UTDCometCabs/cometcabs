@@ -13,6 +13,6 @@
     display: none;
 }
 
-.icon:hover {
+.pointer, .icon:hover {
     cursor: pointer;
 }

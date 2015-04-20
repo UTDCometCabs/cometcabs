@@ -31,7 +31,10 @@ namespace CometCabsAdmin.Web.ApiControllers
         public HttpResponseMessage Get()
         {
             List<CabActivity> activities = _cabService.GetCabActivity()
-                .Where(t => DbFunctions.TruncateTime(t.LoginTime) == DbFunctions.TruncateTime(DateTime.Now))
+                .Where(t => (DbFunctions.TruncateTime(t.LoginTime) == DbFunctions.TruncateTime(DateTime.Now))
+                    && (t.CabCoordinate
+                        .OrderByDescending(c=>c.CurrentDateTime)
+                        .FirstOrDefault().CurrentStatus.ToLower().Equals("on-duty")))
                 .ToList();
 
             List<CabActivityModel> model = new List<CabActivityModel>();
@@ -48,7 +51,10 @@ namespace CometCabsAdmin.Web.ApiControllers
                     CabActivityModel info = new CabActivityModel
                     {
                         CabCode = activity.Cab.CabCode,
+                        ActivityId = activity.Id,
+                        ActivityName = string.Format("{0}-{1}", activity.Cab.CabCode, activity.Driver.Username),
                         Capacity = current.CurrentCapacity,
+                        MaxCapacity = activity.Cab.MaxCapacity,
                         CurrentStatus = current.CurrentStatus,
                         RouteName = activity.Route.RouteName,
                         Latitude = current.Latitude,
@@ -67,9 +73,10 @@ namespace CometCabsAdmin.Web.ApiControllers
             return response;
         }
 
-        public HttpResponseMessage Post(string activityId, string currentCapacity, string currentStatus, string latitude, string longitude)
+        public HttpResponseMessage Post(string activityId, string currentCapacity, string latitude, string longitude)
         {
             CabActivity activity = _cabService.GetCabActivity(long.Parse(activityId));
+
             string result = "[]";
 
             if (activity != null)
@@ -82,7 +89,7 @@ namespace CometCabsAdmin.Web.ApiControllers
                     CurrentDateTime = DateTime.Now,
                     ActivityId = activity.Id,
                     CurrentCapacity = int.Parse(currentCapacity),
-                    CurrentStatus = currentStatus,
+                    CurrentStatus = activity.Cab.OnDutyStatus,
                     Latitude = float.Parse(latitude),
                     Longitude = float.Parse(longitude),
                     CreatedBy = user.Username,

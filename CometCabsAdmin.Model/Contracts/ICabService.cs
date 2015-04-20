@@ -22,6 +22,7 @@ namespace CometCabsAdmin.Model.Contracts
         IQueryable<CabCoordinate> GetCabCoordinates();
         CabCoordinate GetCabCoordinate(long id);
         void InsertCabCoordinate(CabCoordinate coordinate);
+        void UpdateCabCoordinate(CabCoordinate coordinate);
 
         //IQueryable<Entities.RouteCoordinates> GetRouteCoordinates(long id);
         //RouteCoordinates GetRouteCoordinate(float latitude, float longitude);
