@@ -284,6 +284,52 @@ angular.module('starter.controllers', [])
 			alert("Geolocation is not supported by this browser.");
 		}
     }
+	
+	function setUpBluetooth() {
+		bluetoothSerial.isEnabled(
+			function() {
+				
+			}, function() {
+				alert("Warning, Bluetooth not enabled! Please enable in your settings!");
+			});
+/* 		bluetoothSerial.discoverUnpaired(
+			function(results) {
+				for (i = 0; i < results.length; i++) {
+					if (results[i].name.indexOf("POP") > -1) {
+						var id = results[i].id;
+						bluetoothSerial.connect(id,
+							function() {
+								alert("Success!");
+								
+							}, function() {
+								alert("Failure!");
+								
+							});
+					}
+				}		
+				alert(JSON.stringify(results));
+			}, function(error) {
+				alert("No unpaired devices discovered!");
+			}); */
+		bluetoothSerial.list(
+			function(results) {				
+			alert(JSON.stringify(results));
+			bluetoothSerial.available(
+				function(numBytes) {
+				 alert(numBytes);
+				 }, function() {
+					alert("Available call failed to report any bytes.");
+				 });
+				bluetoothSerial.subscribeRawData( 
+				function(data) {
+					alert(data);
+				}, function() {
+					alert("Failed to subscribe!");
+				});
+			}, function(error) {
+				alert("No unpaired devices discovered!");
+			});
+	}
     
   function setRouteCoordinates() {
       /*
@@ -509,6 +555,7 @@ angular.module('starter.controllers', [])
 	}
      
   function toggleFull() {
+	setUpBluetooth();
 	full = !full;
 	if (full) {
 		// fullUI.style.backgroundColor='#FFFF00';
