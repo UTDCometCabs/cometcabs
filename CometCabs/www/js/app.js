@@ -45,7 +45,7 @@ angular.module('starter', ['ionic'])
 		//setCabMarkers();
 		setInterval(refresh, 1000);
 		/*Sets a marker for the current position */
-		if (navigator.geolocation) {
+		/*if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			var marker = new google.maps.Marker({
@@ -56,7 +56,7 @@ angular.module('starter', ['ionic'])
 			});
 		} else {
 			alert("Geolocation is not supported by this browser.");
-		}
+		}*/
 		
 		google.maps.event.addListener(map, 'zoom_changed', function() {
      if (map.getZoom() < 16) map.setZoom(16);
@@ -197,7 +197,8 @@ angular.module('starter', ['ionic'])
       var currentCapacity = cab.Capacity;
       var maxCapacity = cab.MaxCapacity;
       var status = cab.CurrentStatus;
-      if (currentCapacity == maxCapacity){
+      var fullVal = maxCapacity - currentCapacity;
+      if (fullVal <= 0){
           status = "full";
       }
 	cab = new google.maps.Marker({

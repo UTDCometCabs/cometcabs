@@ -461,7 +461,8 @@ angular.module('starter.controllers', [])
           var currentCapacity = cab.Capacity;
           var maxCapacity = cab.MaxCapacity;
           var status = cab.CurrentStatus;
-          if (currentCapacity == maxCapacity){
+          var fullVal = maxCapacity - currentCapacity;
+          if (fullVal <= 0){
               status = "full";
           }
           cabMarker = new google.maps.Marker({
