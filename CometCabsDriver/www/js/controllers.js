@@ -517,7 +517,6 @@ angular.module('starter.controllers', [])
             // Response handlers.
             xhr.onload = function () {
                 var riders = JSON.parse(xhr.responseText);
-                //alert(riders);
                 for (i = 0; i < riders.length; i++) {
                     drawRider(riders[i]);
                 }				
@@ -533,7 +532,6 @@ angular.module('starter.controllers', [])
   }
   
     function drawRider(rider) {
-        //alert("hello");
 		riderMarker = new google.maps.Marker({
 			map: map,
 			position: new google.maps.LatLng(rider.Latitude, rider.Longitude),

@@ -21,7 +21,13 @@ angular.module('starter', ['ionic'])
 	var rutfordMarker; 
 	var phase1SouthMarker;
 	var cabs = [];
+	var routes = [];
+	var newcabs = [];
+	var newroutes = [];
+	var newriders = [];
+    var interestId;
 	var map;
+    var status;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
@@ -40,7 +46,7 @@ angular.module('starter', ['ionic'])
 		//setCabMarkers();
 		setInterval(refresh, 1000);
 		/*Sets a marker for the current position */
-		if (navigator.geolocation) {
+		/*if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			var marker = new google.maps.Marker({
@@ -51,7 +57,7 @@ angular.module('starter', ['ionic'])
 			});
 		} else {
 			alert("Geolocation is not supported by this browser.");
-		}
+		}*/
 		
 		google.maps.event.addListener(map, 'zoom_changed', function() {
      if (map.getZoom() < 16) map.setZoom(16);
@@ -101,7 +107,7 @@ angular.module('starter', ['ionic'])
                 for (i = 0; i < routes.length; i++) {
                     setRouteFromJSON(routes[i]);
                 }
-                
+                removeOldRoutes();
             };
  
             xhr.onerror = function () {
@@ -125,15 +131,22 @@ angular.module('starter', ['ionic'])
             strokeWeight: 2.5,
             map: map
         });
+        newroutes.push(routeLine);
 	
   }
-
+    function removeOldRoutes() {
+		for (i = 0; i < routes.length; i++) {
+			routes[i].setMap(null);
+		}
+		routes = [];
+		for (i = 0; i < newroutes.length; i++) {
+			routes.push(newroutes[i]);
+		}
+		newroutes = [];
+	}
   function setCabColor(status) {
 	var color = "#008000" ; // == "onduty"
 	if (status == "full") {
-		color = "#FFFF00";
-	}
-	if (status == "offduty") {
 		color = "#FF0000";
 	}
 	return color;
@@ -168,10 +181,11 @@ angular.module('starter', ['ionic'])
             // Response handlers.
             xhr.onload = function () {
                 var cabs = JSON.parse(xhr.responseText);
+                //alert(cabs[0].MaxCapacity);
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
-                
+                removeOldCabs();
             };
  
             xhr.onerror = function () {
@@ -181,34 +195,43 @@ angular.module('starter', ['ionic'])
             xhr.send();
 
   }
-  
-  function drawCab(cab) {
-	cab = new google.maps.Marker({
-		map: map,
-		position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
-		icon: {
-		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-		fillOpacity: 1.0,
-		fillColor: setCabColor(cab.Status),
-		strokeOpacity: 1.0,
-		strokeColor: setCabColor(cab.Status),
-		strokeWeight: 1.0,				
-		scale: 7 //pixels
-		}		
-		});  
-      cabs.push(cab);
-  }
+    function drawCab(cab) {
+          var currentCapacity = cab.Capacity;
+          var maxCapacity = cab.MaxCapacity;
+          var status = cab.CurrentStatus;
+          var fullVal = maxCapacity - currentCapacity;
+          if (fullVal <= 0){
+              status = "full";
+          }
+          cabMarker = new google.maps.Marker({
+              map: map,
+              position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
+              icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillOpacity: 1.0,
+                  fillColor: setCabColor(status),
+                  strokeOpacity: 1.0,
+                  strokeColor: setCabColor(status),
+                  scale: 7, //pixels
+                  strokeWeight: 1.0
+              }
+          });
+          newcabs.push(cabMarker);
+      }
     
-    function removeCabs(){
+    function removeOldCabs(){
         for (i = 0; i< cabs.length; i++){
             cabs[i].setMap(null);
         }
         cabs = [];
+		for (i = 0; i < newcabs.length; i++) {
+			cabs.push(newcabs[i]);
+		}
+		newcabs = [];
     }
     
     function refresh() {
         setRouteCoordinates(); //Sets the details for routes
-        removeCabs();
 		setCabMarkers();
     }
   
@@ -217,8 +240,57 @@ angular.module('starter', ['ionic'])
 		var activeColor = 'green';
 		
 		if(btn.style.color != activeColor) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                var url = 'http://cometcabs.azurewebsites.net/api/Interests?longitude='+longitude+'&latitude='+latitude;
+
+                var xhr = createCORSRequest('POST', url);
+
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
+                }
+
+                // Response handlers.
+                xhr.onload = function () {
+                    var id = JSON.parse(xhr.responseText);
+                    interestId = id.interestId;
+                };
+
+                xhr.onerror = function () {
+                    alert('Error making the request.');
+                };
+
+                xhr.send();
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
 			btn.style.color = activeColor;
 		} else {
+                var url = 'http://cometcabs.azurewebsites.net/api/CancelInterest?interestId=' + interestId;
+
+                var xhr = createCORSRequest('POST', url);
+
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
+                }
+
+                // Response handlers.
+                xhr.onload = function () {
+                    var response = JSON.parse(xhr.responseText);
+                    //alert(response);
+                };
+
+                xhr.onerror = function () {
+                    alert('Error making the request.');
+                };
+
+                xhr.send();
+
 			btn.style.color = 'white';
 		}
 	};

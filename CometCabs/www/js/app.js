@@ -27,6 +27,7 @@ angular.module('starter', ['ionic'])
 	var newriders = [];
     var interestId;
 	var map;
+    var status;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
@@ -130,6 +131,7 @@ angular.module('starter', ['ionic'])
             strokeWeight: 2.5,
             map: map
         });
+        newroutes.push(routeLine);
 	
   }
     function removeOldRoutes() {
@@ -179,6 +181,7 @@ angular.module('starter', ['ionic'])
             // Response handlers.
             xhr.onload = function () {
                 var cabs = JSON.parse(xhr.responseText);
+                //alert(cabs[0].MaxCapacity);
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
@@ -192,37 +195,29 @@ angular.module('starter', ['ionic'])
             xhr.send();
 
   }
-  
-  function drawCab(cab) {
-      var currentCapacity = cab.Capacity;
-      var maxCapacity = cab.MaxCapacity;
-      var status = cab.CurrentStatus;
-      var fullVal = maxCapacity - currentCapacity;
-      if (fullVal <= 0){
-          status = "full";
+    function drawCab(cab) {
+          var currentCapacity = cab.Capacity;
+          var maxCapacity = cab.MaxCapacity;
+          var status = cab.CurrentStatus;
+          var fullVal = maxCapacity - currentCapacity;
+          if (fullVal <= 0){
+              status = "full";
+          }
+          cabMarker = new google.maps.Marker({
+              map: map,
+              position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
+              icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillOpacity: 1.0,
+                  fillColor: setCabColor(status),
+                  strokeOpacity: 1.0,
+                  strokeColor: setCabColor(status),
+                  scale: 7, //pixels
+                  strokeWeight: 1.0
+              }
+          });
+          newcabs.push(cabMarker);
       }
-	cab = new google.maps.Marker({
-		map: map,
-		position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
-		icon: {
-		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-		fillOpacity: 1.0,
-		fillColor: setCabColor(status),
-		strokeOpacity: 1.0,
-		strokeColor: setCabColor(status),
-		strokeWeight: 1.0,				
-		scale: 7 //pixels
-		}		
-		});  
-      cabs.push(cab);
-  }
-    
-    /*function removeCabs(){
-        for (i = 0; i< cabs.length; i++){
-            cabs[i].setMap(null);
-        }
-        cabs = [];
-    }*/
     
     function removeOldCabs(){
         for (i = 0; i< cabs.length; i++){
