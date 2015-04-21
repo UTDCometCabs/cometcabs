@@ -177,20 +177,11 @@ angular.module('starter.controllers', [])
         updateGPSLocation();
         //setRouteCoordinates(); //Sets the details for routes
 		//setCabMarkers();
+		//setRiderMarkers();
+        //updateGPSLocation();
+		//speedScreen();
 		setInterval(refresh, 1000);
-        /*Sets a marker for the current position */
-		/*if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(function(position) {
-			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			var marker = new google.maps.Marker({
-				position: currentPosition,
-				map: map,
-				title:"You are here"
-				});		
-			});
-		} else {
-			alert("Geolocation is not supported by this browser.");
-		}*/
+        
 		//Refer to https://developers.google.com/maps/documentation/javascript/controls 
 		//for info on control positioning
 		var fullControlDiv = document.createElement('div');		
@@ -235,6 +226,29 @@ angular.module('starter.controllers', [])
         return xhr;    
     }
     
+    $scope.logout = function() {
+        var url = 'http://cometcabs.utd.edu/api/Logoff?activityId=8&longitude=-96.7500153&latitude=32.9856644';
+ 
+            var xhr = createCORSRequest('POST', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var response = JSON.parse(xhr.responseText);
+                alert(response);
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+    }
+    
     function updateGPSLocation() {
         /*Sets a marker for the current position */
 		if (navigator.geolocation) {
@@ -243,8 +257,8 @@ angular.module('starter.controllers', [])
                 var longitude = position.coords.longitude;
 				
 			speedTracker.updateSpeed(latitude, longitude, Date.now());
-
-			//var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                
+                //capacity comes from the on screen +,- buttons
 			var url = 'http://cometcabs.azurewebsites.net/api/CabActivity?activityId=' + sharedActivity.getActivity() + '&currentCapacity=' + capacity + '&latitude=' + latitude + '&longitude=' + longitude;
  
             var xhr = createCORSRequest('POST', url);
@@ -256,8 +270,8 @@ angular.module('starter.controllers', [])
  
             // Response handlers.
             xhr.onload = function () {
-                //alert(xhr.responseText);
-                
+                //var response = JSON.parse(xhr.responseText);
+                //alert(response);     
             };
  
             xhr.onerror = function () {
@@ -335,14 +349,11 @@ angular.module('starter.controllers', [])
 	}
     
   function setCabColor(status) {
-	var color = "#008000" ; // == "onduty"
-	if (status == "full") {
-		color = "#FFFF00";
-	}
-	if (status == "offduty") {
-		color = "#FF0000";
-	}
-	return color;
+      var color = "#008000" ; // == "onduty"
+      if (status == "full") {
+          color = "#FF0000";
+      }
+      return color;
   }
   
   function setCabMarkers() {
@@ -391,15 +402,21 @@ angular.module('starter.controllers', [])
   }
     
       function drawCab(cab) {
+          var currentCapacity = cab.Capacity;
+          var maxCapacity = 5; //change this to cab.MaxCapacity
+          var status = cab.CurrentStatus;
+          if (currentCapacity == maxCapacity){
+              status = "full";
+          }
           cabMarker = new google.maps.Marker({
               map: map,
               position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
               icon: {
                   path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
-                  fillColor: setCabColor(cab.Status),
+                  fillColor: setCabColor(status),
                   strokeOpacity: 1.0,
-                  strokeColor: setCabColor(cab.Status),
+                  strokeColor: setCabColor(status),
                   scale: 7, //pixels
                   strokeWeight: 1.0
               }

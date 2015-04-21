@@ -144,9 +144,6 @@ angular.module('starter', ['ionic'])
   function setCabColor(status) {
 	var color = "#008000" ; // == "onduty"
 	if (status == "full") {
-		color = "#FFFF00";
-	}
-	if (status == "offduty") {
 		color = "#FF0000";
 	}
 	return color;
@@ -196,15 +193,21 @@ angular.module('starter', ['ionic'])
   }
   
   function drawCab(cab) {
+      var currentCapacity = cab.Capacity;
+      var maxCapacity = 5; //change this to cab.MaxCapacity
+      var status = cab.CurrentStatus;
+      if (currentCapacity == maxCapacity){
+          status = "full";
+      }
 	cab = new google.maps.Marker({
 		map: map,
 		position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
 		icon: {
 		path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
 		fillOpacity: 1.0,
-		fillColor: setCabColor(cab.Status),
+		fillColor: setCabColor(status),
 		strokeOpacity: 1.0,
-		strokeColor: setCabColor(cab.Status),
+		strokeColor: setCabColor(status),
 		strokeWeight: 1.0,				
 		scale: 7 //pixels
 		}		
