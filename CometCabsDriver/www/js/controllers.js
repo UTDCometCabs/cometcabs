@@ -170,10 +170,7 @@ angular.module('starter.controllers', [])
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
-/* 		$(document).keypress(function(e)
-{
-			alert(e.which);
-	}); */
+
         updateGPSLocation();
         //setRouteCoordinates(); //Sets the details for routes
 		//setCabMarkers();
@@ -181,7 +178,14 @@ angular.module('starter.controllers', [])
         //updateGPSLocation();
 		//speedScreen();
 		setInterval(refresh, 1000);
-        
+        $(document).keypress(function(e)
+		{
+			alert("Key pressed!");
+			alert(e.which);
+		});
+		window.addEventListener("volumebuttonslistener", onVolumeButtonsListener, false);
+
+		
 		//Refer to https://developers.google.com/maps/documentation/javascript/controls 
 		//for info on control positioning
 		var fullControlDiv = document.createElement('div');		
@@ -258,7 +262,16 @@ angular.module('starter.controllers', [])
 			alert("Geolocation is not supported by this browser.");
 		}
     }
-    
+    function onVolumeButtonsListener(info){
+			var signal = info.signal;
+			if (signal.indexOf("volume-up") > -1) {
+				incrementRiders();
+			}
+			else if (signal.indexOf("volume-down") > -1) {
+				decrementRiders();
+			}			
+			//alert("Button pressed: " + info.signal);
+		}
     function updateGPSLocation() {
         /*Sets a marker for the current position */
 		if (navigator.geolocation) {
