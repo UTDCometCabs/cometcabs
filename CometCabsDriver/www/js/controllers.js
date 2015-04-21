@@ -170,6 +170,10 @@ angular.module('starter.controllers', [])
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
+/* 		$(document).keypress(function(e)
+{
+			alert(e.which);
+	}); */
         updateGPSLocation();
         //setRouteCoordinates(); //Sets the details for routes
 		//setCabMarkers();
