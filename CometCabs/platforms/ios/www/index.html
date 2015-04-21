@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+	<!--CSS sheet, where any changes we make go. Not much there. -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>-->
+      <script src="js/jquery-1.11.2.js"></script>
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+	<!--Needed for the Map API -->
+	<script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAvuPeBH4dy6M5MGMQ2qII1ATbF9-8xfbY">
+    </script>
+	<!--The below file is where any controller code goes. -->
+    <script src="js/app.js"></script>
+  </head>
+  <body ng-app="starter" ng-controller="MapCtrl" class="platform-ios platform-cordova platform-webview">
+
+    <ion-pane>
+	  <!--Just the header, we can change the style if need be -->
+      <ion-header-bar class="bar-dark">
+          <h1 class="title">Comet Cabs</h1>
+          <div class="buttons">
+              <button id="iWantToRideButton" class="button button-clear icon ion-android-bus" ng-click="iWantToRide()">I Want to Ride</button>
+          </div>
+      </ion-header-bar>
+      <ion-content>
+		<!--This is all that's needed for the main pane (strangely). Everything else is
+		done in Javascript -->
+		<div id="map" data-tap-disabled="true"></div>
+      </ion-content>
+    </ion-pane>
+  </body>
+</html>
