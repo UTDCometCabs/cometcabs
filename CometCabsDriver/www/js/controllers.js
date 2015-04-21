@@ -51,9 +51,7 @@ angular.module('starter.controllers', [])
             xhr.onload = function () {
                 var resources = JSON.parse(xhr.responseText);
                 $scope.allRoutes = resources.Routes;
-                //$scope.RouteIDSelect = "1";
                 $scope.allCabs = resources.Cabs;
-                //$scope.CabIDSelect = "1";
                 $scope.allUsers = resources.Users;
             };
  
@@ -83,19 +81,17 @@ angular.module('starter.controllers', [])
 		var routeIDDropDown = document.getElementById("dd1"); 
 		var cabIDDropDown = document.getElementById("dd2");
         var userIDDropDown = document.getElementById("username");
-        alert(userIDDropDown.options[userIDDropDown.selectedIndex].text);
-		//alert("CabId: " + $scope.allCabs[cabIDDropDown.selectedIndex].CabId + " RouteId: " + $scope.allRoutes[routeIDDropDown.selectedIndex].RouteId);
 		
         if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
                 
-                var url = 'http://cometcabs.azurewebsites.net/api/Login?userName='+userIDDropDown.options[userIDDropDown.selectedIndex].text+'&password='+$scope.data.password+'&cabId='+$scope.allCabs[cabIDDropDown.selectedIndex].CabId+'&routeId='+$scope.allRoutes[routeIDDropDown.selectedIndex].RouteId+'&longitude='+longitude+'&latitude='+latitude;
+                var url = 'http://cometcabs.azurewebsites.net/api/Login?userId='+$scope.allUsers[userIDDropDown.selectedIndex].UserId+'&cabId='+$scope.allCabs[cabIDDropDown.selectedIndex].CabId+'&password='+$scope.data.password+'&cabId='+$scope.allCabs[cabIDDropDown.selectedIndex].CabId+'&routeId='+$scope.allRoutes[routeIDDropDown.selectedIndex].RouteId+'&longitude='+longitude+'&latitude='+latitude;
 
                     var cabCode = cabIDDropDown.options[cabIDDropDown.selectedIndex].text;
                     var routeName = routeIDDropDown.options[routeIDDropDown.selectedIndex].text;
-
+                    var username = userIDDropDown.options[userIDDropDown.selectedIndex].text;
                     var xhr = createCORSRequest('POST', url);
 
                     if (!xhr) {
@@ -113,13 +109,13 @@ angular.module('starter.controllers', [])
                             sharedActivity.setActivity(activityId);
                             sharedActivity.setCab(cabCode);
                             sharedActivity.setRoute(routeName);
+                            sharedActivity.setUsername(username);
                             $state.go('driver');
                         }
                     };
 
                     xhr.onerror = function () {
                         alert('Error making the login request.');
-                        $state.go('driver'); //remove this
                     };
 
                     xhr.send();
@@ -140,7 +136,7 @@ angular.module('starter.controllers', [])
 	});*/
 })
 
-.controller('MapCtrl', function($scope, $ionicLoading, $compile, sharedActivity, speedTracker) {
+.controller('MapCtrl', function($scope, $state, $ionicLoading, $compile, sharedActivity, speedTracker) {
 			
 	var rutfordMarker; 
 	var phase1SouthMarker;
@@ -227,26 +223,36 @@ angular.module('starter.controllers', [])
     }
     
     $scope.logout = function() {
-        var url = 'http://cometcabs.utd.edu/api/Logoff?activityId=8&longitude=-96.7500153&latitude=32.9856644';
+        if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+        
+                var url = 'http://cometcabs.azurewebsites.net/api/Logoff?activityId=' + sharedActivity.getActivity() + '&longitude='+longitude+'&latitude='+latitude;
  
-            var xhr = createCORSRequest('POST', url);
- 
-            if (!xhr) {
-                alert('CORS not supported');
-                return;
-            }
- 
-            // Response handlers.
-            xhr.onload = function () {
-                var response = JSON.parse(xhr.responseText);
-                alert(response);
-            };
- 
-            xhr.onerror = function () {
-                alert('Error making the request.');
-            };
- 
-            xhr.send();
+                var xhr = createCORSRequest('POST', url);
+
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
+                }
+
+                // Response handlers.
+                xhr.onload = function () {
+                    var response = JSON.parse(xhr.responseText);
+                    //alert(response);
+                    $state.go('login');
+                };
+
+                xhr.onerror = function () {
+                    alert('Error making the logout request.');
+                };
+
+                xhr.send();
+            });
+        } else {
+			alert("Geolocation is not supported by this browser.");
+		}
     }
     
     function updateGPSLocation() {
@@ -449,7 +455,7 @@ angular.module('starter.controllers', [])
     
       function drawCab(cab) {
           var currentCapacity = cab.Capacity;
-          var maxCapacity = 5; //change this to cab.MaxCapacity
+          var maxCapacity = cab.MaxCapacity;
           var status = cab.CurrentStatus;
           if (currentCapacity == maxCapacity){
               status = "full";

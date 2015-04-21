@@ -25,6 +25,7 @@ angular.module('starter', ['ionic'])
 	var newcabs = [];
 	var newroutes = [];
 	var newriders = [];
+    var interestId;
 	var map;
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
@@ -194,7 +195,7 @@ angular.module('starter', ['ionic'])
   
   function drawCab(cab) {
       var currentCapacity = cab.Capacity;
-      var maxCapacity = 5; //change this to cab.MaxCapacity
+      var maxCapacity = cab.MaxCapacity;
       var status = cab.CurrentStatus;
       if (currentCapacity == maxCapacity){
           status = "full";
@@ -241,7 +242,6 @@ angular.module('starter', ['ionic'])
 	$scope.iWantToRide = function() {
 		var btn = document.getElementById("iWantToRideButton");
 		var activeColor = 'green';
-        var interestId = '';
 		
 		if(btn.style.color != activeColor) {
             if (navigator.geolocation) {
@@ -260,10 +260,7 @@ angular.module('starter', ['ionic'])
                 // Response handlers.
                 xhr.onload = function () {
                     var id = JSON.parse(xhr.responseText);
-                    alert(id);
                     interestId = id.interestId;
-                    //this is telling me undefined even though xhr.responseText is giving an id back
-                    alert(interestId);
                 };
 
                 xhr.onerror = function () {
@@ -277,7 +274,7 @@ angular.module('starter', ['ionic'])
             }
 			btn.style.color = activeColor;
 		} else {
-                var url = 'http://cometcabs.utd.edu/api/CancelInterest?interestId=' + interestId;
+                var url = 'http://cometcabs.azurewebsites.net/api/CancelInterest?interestId=' + interestId;
 
                 var xhr = createCORSRequest('POST', url);
 
@@ -289,7 +286,7 @@ angular.module('starter', ['ionic'])
                 // Response handlers.
                 xhr.onload = function () {
                     var response = JSON.parse(xhr.responseText);
-                    alert(response);
+                    //alert(response);
                 };
 
                 xhr.onerror = function () {
