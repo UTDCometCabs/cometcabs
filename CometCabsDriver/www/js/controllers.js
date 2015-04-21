@@ -546,7 +546,7 @@ angular.module('starter.controllers', [])
                 strokeWeight: 1.0
               }
 			});  
-		newriders.push(rider);
+		newriders.push(riderMarker);
 	}
     
 	/*Takes all the cabs in the list of already existing riders and removes
