@@ -139,8 +139,7 @@ angular.module('starter.controllers', [])
 .controller('MapCtrl', function($scope, $state, $ionicLoading, $compile, sharedActivity, speedTracker) {
 			
 	var rutfordMarker; 
-	var phase1SouthMarker;
-	var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+	var phase1SouthMarker;	
 	var map;
     var cabs = [];
 	var routes = [];
@@ -376,9 +375,9 @@ angular.module('starter.controllers', [])
  
             // Response handlers.
             xhr.onload = function () {
-                var routes = JSON.parse(xhr.responseText);
-                for (i = 0; i < routes.length; i++) {
-                    setRouteFromJSON(routes[i]);
+                var jsonRoutes = JSON.parse(xhr.responseText);
+                for (i = 0; i < jsonRoutes.length; i++) {
+                    setRouteFromJSON(jsonRoutes[i]);
                 }
                 removeOldRoutes();
             };
