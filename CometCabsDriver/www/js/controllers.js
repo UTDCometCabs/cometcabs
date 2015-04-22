@@ -52,7 +52,7 @@ angular.module('starter.controllers', [])
                 var resources = JSON.parse(xhr.responseText);
                 $scope.allRoutes = resources.Routes;
                 $scope.allCabs = resources.Cabs;
-                $scope.allUsers = resources.Users;
+                $scope.allUsers = resources.Users;				
             };
  
             xhr.onerror = function () {
@@ -66,17 +66,8 @@ angular.module('starter.controllers', [])
     
     $scope.data = {};
  
-    /*$scope.login = function() {
-        LoginService.loginUser($scope.data.username, $scope.data.password, $scope.allRoutes, $scope.allCabs).success(function(data) {
-            $state.go('driver');
-        }).error(function(data) {
-            var alertPopup = $ionicPopup.alert({
-                title: 'Login failed!',
-                template: 'Please check your credentials!'
-            });
-        });
-    }*/
-    
+
+		
     $scope.login = function() {
 		var routeIDDropDown = document.getElementById("dd1"); 
 		var cabIDDropDown = document.getElementById("dd2");
@@ -125,15 +116,6 @@ angular.module('starter.controllers', [])
 		}
     }
     
-	/*$http.get('routeData.json').success(function(data) {
-		$scope.allRoutes = data;
-		$scope.RouteIDSelect = "1";
-	});
-	
-	$http.get('cabData.json').success(function(data) {
-		$scope.allCabs = data;
-		$scope.CabIDSelect = "1";
-	});*/
 })
 
 .controller('MapCtrl', function($scope, $state, $ionicLoading, $compile, sharedActivity, speedTracker) {
@@ -210,7 +192,7 @@ angular.module('starter.controllers', [])
 		google.maps.event.addListener(map, 'zoom_changed', function() {
      if (map.getZoom() < 15) map.setZoom(15);
    });
-       
+       setUpBluetooth()
   }
     
   function createCORSRequest(method, url) {
@@ -306,51 +288,23 @@ angular.module('starter.controllers', [])
 			alert("Geolocation is not supported by this browser.");
 		}
     }
-	
+	/*Checks to see if bluetooth is enabled. If not, it will prompt the user to enable.
+	this is necessary for the bluetooth button/remote to work. Please note, for use of the
+	keyboard on the login screen, Bluetooth should be disabled when starting the program.*/
 	function setUpBluetooth() {
 		bluetoothSerial.isEnabled(
 			function() {
-				
+				//Do nothing on success
 			}, function() {
-				alert("Warning, Bluetooth not enabled! Please enable in your settings!");
-			});
-/* 		bluetoothSerial.discoverUnpaired(
-			function(results) {
-				for (i = 0; i < results.length; i++) {
-					if (results[i].name.indexOf("POP") > -1) {
-						var id = results[i].id;
-						bluetoothSerial.connect(id,
-							function() {
-								alert("Success!");
-								
-							}, function() {
-								alert("Failure!");
-								
-							});
-					}
-				}		
-				alert(JSON.stringify(results));
-			}, function(error) {
-				alert("No unpaired devices discovered!");
-			}); */
-		bluetoothSerial.list(
-			function(results) {				
-			alert(JSON.stringify(results));
-			bluetoothSerial.available(
-				function(numBytes) {
-				 alert(numBytes);
-				 }, function() {
-					alert("Available call failed to report any bytes.");
-				 });
-				bluetoothSerial.subscribeRawData( 
-				function(data) {
-					alert(data);
-				}, function() {
-					alert("Failed to subscribe!");
+				bluetoothSerial.enable(
+				function() {
+					//Do nothing on success. The OS will handle the rest.
+				},
+				function() {
+					alert("Please keep in mind, bluetooth device input (your remote) will not work with Bluetooth disabled.");
 				});
-			}, function(error) {
-				alert("No unpaired devices discovered!");
 			});
+
 	}
     
   function setRouteCoordinates() {
