@@ -724,7 +724,7 @@ angular.module('starter.controllers', [])
 		setCabMarkers();
 		setRiderMarkers();
         updateGPSLocation();
-		speedScreen();
+		//speedScreen();
     }
 	  
     /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/
