@@ -52,7 +52,25 @@ angular.module('starter.controllers', [])
                 var resources = JSON.parse(xhr.responseText);
                 $scope.allRoutes = resources.Routes;
                 $scope.allCabs = resources.Cabs;
-                $scope.allUsers = resources.Users;				
+                $scope.allUsers = resources.Users;
+				
+				var listItems= "";
+				for (var i = 0; i < $scope.allUsers.length; i++){
+					listItems+= "<option value='" + $scope.allUsers[i].UserId + "'>" + $scope.allUsers[i].UserName + "</option>";
+				}
+				$("#username").html(listItems);
+				
+				listItems= "";
+				for (var i = 0; i < $scope.allRoutes.length; i++){
+					listItems+= "<option value='" + $scope.allRoutes[i].RouteId + "'>" + $scope.allRoutes[i].RouteName + "</option>";
+				}
+				$("#dd1").html(listItems);
+
+				listItems= "";
+				for (var i = 0; i < $scope.allCabs.length; i++){
+					listItems+= "<option value='" + $scope.allCabs[i].CabId + "'>" + $scope.allCabs[i].CabCode + "</option>";
+				}
+				$("#dd2").html(listItems);
             };
  
             xhr.onerror = function () {
@@ -61,10 +79,10 @@ angular.module('starter.controllers', [])
  
             xhr.send();
     }
-    
-    getResources(); //this function populates the dropdowns
-    
-    $scope.data = {};
+	
+	getResources(); //this function populates the dropdowns
+	
+	$scope.data = {};
  
 
 		

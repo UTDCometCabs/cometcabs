@@ -100,6 +100,16 @@ angular.module('starter', ['ionic'])
                 var routes = resources.Routes;
                 routes.push({"RouteId":0,"RouteName":"All"});
                 $scope.allRoutes = routes;
+				
+				var listItems= "";
+				for (var i = 0; i < $scope.allRoutes.length; i++){
+					listItems+= "<option value='" + $scope.allRoutes[i].RouteId + "'>" + $scope.allRoutes[i].RouteName + "</option>";
+				}
+				var si = document.getElementById("route").selectedIndex;
+				$("#route").html(listItems);
+				if(si != 0 && si > 0) {
+					document.getElementById("route").selectedIndex = si;
+				}
             };
  
             xhr.onerror = function () {
