@@ -44,8 +44,10 @@ angular.module('starter', ['ionic'])
         
         //setRouteCoordinates(); //Sets the details for routes
 		//setCabMarkers();
+        setRouteChoice();
 		setInterval(refresh, 1000);
-		/*Sets a marker for the current position */
+		
+        /*Sets a marker for the current position */
 		/*if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -81,7 +83,36 @@ angular.module('starter', ['ionic'])
         return xhr;    
     }
     
-  function setRouteCoordinates() {
+    function setRouteChoice() {
+      //load dropdown route choice
+      var url = 'http://cometcabs.azurewebsites.net/api/login';
+ 
+            var xhr = createCORSRequest('GET', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var resources = JSON.parse(xhr.responseText);
+                var routes = resources.Routes;
+                routes.push({"RouteId":0,"RouteName":"All"});
+                $scope.allRoutes = routes;
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+    }
+  
+    function setRouteCoordinates() {
+        //get rider route viewing choice from drop down
+        var routeIDDropDown = document.getElementById("route");
+        var routeName = routeIDDropDown.options[routeIDDropDown.selectedIndex].text;
       /*
 		The JSON for routes:
 		var jsonRoute = {
@@ -103,11 +134,21 @@ angular.module('starter', ['ionic'])
  
             // Response handlers.
             xhr.onload = function () {
-                var routes = JSON.parse(xhr.responseText);
-                for (i = 0; i < routes.length; i++) {
-                    setRouteFromJSON(routes[i]);
+                var JSONroutes = JSON.parse(xhr.responseText);
+                //alert("'" + routeName + "'");
+                if (routeName != 'All' && routeName) {
+                    for (i = 0; i < JSONroutes.length; i++) {
+                        if (routeName == JSONroutes[i].Name) {
+                            setRouteFromJSON(JSONroutes[i]);
+                        }
+                    }
+                    removeOldRoutes(); 
+                } else if (!routeName || routeName == 'All') {
+                    for (i = 0; i < JSONroutes.length; i++) {
+                        setRouteFromJSON(JSONroutes[i]);
+                    }
+                    removeOldRoutes();                    
                 }
-                removeOldRoutes();
             };
  
             xhr.onerror = function () {
@@ -118,7 +159,7 @@ angular.module('starter', ['ionic'])
 	
   }
   
-    function setRouteFromJSON(route, color) {
+    function setRouteFromJSON(route) {
         var routePath = [];
         for (j = 0; j < route.Path.length; j++) {
             routePath.push(new google.maps.LatLng(route.Path[j].Latitude, route.Path[j].Longitude));
@@ -144,6 +185,7 @@ angular.module('starter', ['ionic'])
 		}
 		newroutes = [];
 	}
+    
   function setCabColor(status) {
 	var color = "#008000" ; // == "onduty"
 	if (status == "full") {
@@ -195,6 +237,7 @@ angular.module('starter', ['ionic'])
             xhr.send();
 
   }
+    
     function drawCab(cab) {
           var currentCapacity = cab.Capacity;
           var maxCapacity = cab.MaxCapacity;
@@ -231,6 +274,7 @@ angular.module('starter', ['ionic'])
     }
     
     function refresh() {
+        setRouteChoice();
         setRouteCoordinates(); //Sets the details for routes
 		setCabMarkers();
     }

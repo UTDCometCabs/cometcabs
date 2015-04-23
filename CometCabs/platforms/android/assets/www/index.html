@@ -42,6 +42,15 @@
       <ion-content>
 		<!--This is all that's needed for the main pane (strangely). Everything else is
 		done in Javascript -->
+          <div>
+			<label class="item item-input item-select">
+				<div class="input-label">
+					Route
+				</div>
+				<select id="route" ng-model="RouteIDSelect" ng-options="obj.RouteId as obj.RouteName for obj in allRoutes">
+				</select>
+			</label>
+      </div>
 		<div id="map" data-tap-disabled="true"></div>
       </ion-content>
     </ion-pane>
