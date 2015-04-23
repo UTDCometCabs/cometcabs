@@ -216,7 +216,7 @@ angular.module('starter.controllers', [])
 		google.maps.event.addListener(map, 'zoom_changed', function() {
      if (map.getZoom() < 15) map.setZoom(15);
    });
-       setUpBluetooth()
+       setUpBluetooth();
   }
     
   function createCORSRequest(method, url) {
