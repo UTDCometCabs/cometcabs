@@ -134,6 +134,12 @@ angular.module('starter.controllers', [])
 	var fullUI;	
 	var capacity;
 	var totalText;
+	var xAccel = 0;
+	var yAccel = 0;
+	var zAccel = 0;
+	var xVelocity = 0;
+	var yVelocity = 0;
+	var zVelocity = 9.81;
     var status = "on-duty"; //initalize cab status to on-duty
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
@@ -709,21 +715,50 @@ angular.module('starter.controllers', [])
 	function speedScreen() {
 		var speedThreshold = 1;
 		if(speedTracker.getSpeed() > speedThreshold) {
+			$("#map").hide();
 			// Black out screen/map
-			$('#screen').css({	"display": "block", opacity: 1.0, "width":$(document).width(),"height":$(document).height()});
-			$('body').css({"overflow":"hidden"});
-			$('#box').css({"display": "block"});
+			// $('#screen').css({	"display": "block", opacity: 1.0, "width":$(document).width(),"height":$(document).height()});
+			// $('body').css({"overflow":"hidden"});
+			// $('#box').css({"display": "block"});
 		} else {
-			$(this).css("display", "none");
-			$('#screen').css("display", "none");
+			$("#map").show();
+			// $(this).css("display", "none");
+			// $('#screen').css("display", "none");
 		}
 	}
-	
+	/**Code to handle motion using the accelerometer. Currently not working, since
+		I don't know how to account for the orientation changing if the phone is lifted, etc.*/
+	// function handleAcceleration() {		
+		// navigator.accelerometer.getCurrentAcceleration(
+			// function(acceleration) {
+			// //alert(acceleration.x);
+			// //alert(acceleration.y);
+			// //alert(acceleration.z);		
+			// xVelocity = xVelocity + (acceleration.x - xAccel);
+			// yVelocity = yVelocity + (acceleration.y - yAccel);
+			// zVelocity = zVelocity + (acceleration.z - zAccel);
+			// xAccel = acceleration.x;
+			// yAccel = acceleration.y;			
+			// zAccel = acceleration.z;
+			// //velocity = Math.sqrt(xVelocity * xVelocity + yVelocity * yVelocity);
+			// velocity = xVelocity + yVelocity - zVelocity;
+			// alert(velocity);
+			// if(velocity > 4) {
+				// $("#map").hide();
+			// } else {
+				// $("#map").show();
+			// }
+			// }, function () {
+				// alert("Accel error!");
+			// });
+	// }	
+
     function refresh() {
         setRouteCoordinates(); //Sets the details for routes        
 		setCabMarkers();
 		setRiderMarkers();
         updateGPSLocation();
+		//handleAcceleration();
 		speedScreen();
     }
 	  

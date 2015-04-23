@@ -15,6 +15,7 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
-    "com.megster.cordova.bluetoothserial"
+    "com.megster.cordova.bluetoothserial",
+    "org.apache.cordova.device-motion"
   ]
 }
