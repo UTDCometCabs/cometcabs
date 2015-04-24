@@ -328,7 +328,6 @@ angular.module('starter.controllers', [])
 					alert("Please keep in mind, bluetooth device input (your remote) will not work with Bluetooth disabled.");
 				});
 			});
-
 	}
     
   function setRouteCoordinates() {
