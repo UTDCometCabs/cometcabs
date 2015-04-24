@@ -99,6 +99,12 @@ angular.module('starter', ['ionic'])
                 var resources = JSON.parse(xhr.responseText);
                 var routes = resources.Routes;
                 routes.push({"RouteId":0,"RouteName":"All"});
+				
+				var firstLoad = true;
+				if($scope.allRoutes) {
+					firstLoad = false;
+				}
+				
                 $scope.allRoutes = routes;
 				
 				var listItems= "";
@@ -107,8 +113,10 @@ angular.module('starter', ['ionic'])
 				}
 				var si = document.getElementById("route").selectedIndex;
 				$("#route").html(listItems);
-				if(si != 0 && si > 0) {
+				if(!firstLoad && si != 0 && si > 0) {
 					document.getElementById("route").selectedIndex = si;
+				} else if(firstLoad) {
+					document.getElementById("route").selectedIndex = $scope.allRoutes.length - 1;
 				}
             };
  

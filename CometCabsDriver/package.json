@@ -16,6 +16,7 @@
   },
   "cordovaPlugins": [
     "com.megster.cordova.bluetoothserial",
-    "org.apache.cordova.device-motion"
+    "org.apache.cordova.device-motion",
+    "org.apache.cordova.geolocation"
   ]
 }
