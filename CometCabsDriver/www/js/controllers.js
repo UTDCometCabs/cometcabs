@@ -158,7 +158,7 @@ angular.module('starter.controllers', [])
 	var xVelocity = 0;
 	var yVelocity = 0;
 	var zVelocity = 9.81;
-    var status = "on-duty"; //initalize cab status to on-duty
+    //var status = "on-duty"; //initalize cab status to on-duty
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
         var site = new google.maps.LatLng(32.986,-96.750);
@@ -193,10 +193,10 @@ angular.module('starter.controllers', [])
 		
 		//Refer to https://developers.google.com/maps/documentation/javascript/controls 
 		//for info on control positioning
-		var fullControlDiv = document.createElement('div');		
+		var fullControlDiv = document.createElement('div');
 		fullControl = new FullControl(fullControlDiv, map);
 		fullControlDiv.index = 1;
-		map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(fullControlDiv);
+		//map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(fullControlDiv);
 		
 		var incrementRiderDiv = document.createElement('div');
 		var incrementRider = new IncrementRiderControl(incrementRiderDiv, map);
@@ -211,12 +211,12 @@ angular.module('starter.controllers', [])
 		var totalDiv = document.createElement('div');
 		var totalRiderControl = new RiderTotalsView(totalDiv, map);
 		totalDiv.index = 1;
-		map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(totalDiv);
+		map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(totalDiv);
   
 		google.maps.event.addListener(map, 'zoom_changed', function() {
      if (map.getZoom() < 15) map.setZoom(15);
    });
-       setUpBluetooth();
+       //setUpBluetooth();
   }
     
   function createCORSRequest(method, url) {
@@ -448,17 +448,28 @@ angular.module('starter.controllers', [])
   }
     
       function drawCab(cab) {
+          /*var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+            var marker = new google.maps.Marker({
+              position: myLatLng,
+              map: map,
+              icon: iconBase + 'schools_maps.png'
+            });*/
+          var iconOpen = '/img/busgreen.png';
+          var iconFull = '/img/busred.png';
+          var icon = iconOpen;
           var currentCapacity = cab.Capacity;
           var maxCapacity = cab.MaxCapacity;
           var status = cab.CurrentStatus;
           var fullVal = maxCapacity - currentCapacity;
           if (fullVal <= 0){
-              status = "full";
+              //status = "full";
+              icon = iconFull;
           }
           cabMarker = new google.maps.Marker({
               map: map,
               position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
-              icon: {
+              icon: icon
+              /*icon: {
                   path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
                   fillColor: setCabColor(status),
@@ -466,7 +477,7 @@ angular.module('starter.controllers', [])
                   strokeColor: setCabColor(status),
                   scale: 7, //pixels
                   strokeWeight: 1.0
-              }
+              }*/
           });
           newcabs.push(cabMarker);
       }
@@ -522,11 +533,13 @@ angular.module('starter.controllers', [])
   }
   
     function drawRider(rider) {
+        var iconRider = '/img/flagblue.png';
 		riderMarker = new google.maps.Marker({
 			map: map,
 			position: new google.maps.LatLng(rider.Latitude, rider.Longitude),
 			title: 'Rider Waiting',
-            icon: {
+            icon: iconRider
+            /*icon: {
                   path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
                   fillColor: "#0000FF",
@@ -534,7 +547,7 @@ angular.module('starter.controllers', [])
                   strokeColor: "#000000",
                   scale: 5, //pixels
                 strokeWeight: 1.0
-              }
+              }*/
 			});  
 		newriders.push(riderMarker);
 	}
@@ -604,13 +617,13 @@ angular.module('starter.controllers', [])
 	
 	function incrementRiders() {
 		capacity++;	
-		totalText.innerHTML = '<strong>Passengers: ' + capacity + '</strong>';
+		totalText.innerHTML = '<strong>' + capacity + '</strong>';
 	}
 	function decrementRiders() {
 		if (capacity > 0) {
 			capacity--;	
 		}
-		totalText.innerHTML = '<strong>Passengers: ' + capacity + '</strong>';
+		totalText.innerHTML = '<strong>' + capacity + '</strong>';
 	}
 	function IncrementRiderControl(controlDiv, map) {
 
@@ -627,19 +640,20 @@ angular.module('starter.controllers', [])
 	  incrementUI.style.borderStyle = 'solid';
 	  incrementUI.style.borderWidth = '2px';
 	  incrementUI.style.cursor = 'pointer';
-	  incrementUI.style.textAlign = 'center';
-	  incrementUI.title = 'Click to set the map to Home';
+        incrementUI.style.textAlign = 'center';
+	  incrementUI.title = 'Increase Riders';
 	  controlDiv.appendChild(incrementUI);
 
 	  // Set CSS for the control interior.
 	  var controlText = document.createElement('div');
 	  controlText.style.fontFamily = 'Arial,sans-serif';
-	  controlText.style.fontSize = '24px';
-	  controlText.style.paddingLeft = '4px';
-	  controlText.style.paddingRight = '4px';
-	  controlText.style.paddingTop = '4px';
-	  controlText.style.paddingBottom = '4px';
-	  controlText.innerHTML = '<strong>+Rider</strong>';
+	  controlText.style.fontSize = '60px';
+        controlText.style.lineHeight = "50px";
+        controlText.style.width = "50px";
+        controlText.style.height = "50px";
+        controlText.style.textAlign = 'center';
+        controlText.style.verticalAlign = 'middle';
+	  controlText.innerHTML = '<strong>+</strong>';
 	  incrementUI.appendChild(controlText);
 
 	  // Setup the click event listeners: simply set the map to Chicago.
@@ -671,18 +685,19 @@ angular.module('starter.controllers', [])
 	  incrementUI.style.borderWidth = '2px';
 	  incrementUI.style.cursor = 'pointer';
 	  incrementUI.style.textAlign = 'center';
-	  incrementUI.title = 'Click to set the map to Home';
+	  incrementUI.title = 'Decrease Riders';
 	  controlDiv.appendChild(incrementUI);
 
 	  // Set CSS for the control interior.
 	  var controlText = document.createElement('div');
 	  controlText.style.fontFamily = 'Arial,sans-serif';
-	  controlText.style.fontSize = '24px';
-	  controlText.style.paddingLeft = '4px';
-	  controlText.style.paddingRight = '4px';
-	  controlText.style.paddingTop = '4px';
-	  controlText.style.paddingBottom = '4px';
-	  controlText.innerHTML = '<strong>-Rider</strong>';
+	  controlText.style.fontSize = '60px';
+	  controlText.style.lineHeight = "50px";
+        controlText.style.width = "50px";
+        controlText.style.height = "50px";
+        controlText.style.textAlign = 'center';
+        controlText.style.verticalAlign = 'middle';
+	  controlText.innerHTML = '<strong>-</strong>';
 	  incrementUI.appendChild(controlText);
 
 	  // Setup the click event listeners: simply set the map to Chicago.
@@ -714,16 +729,19 @@ angular.module('starter.controllers', [])
 	  incrementUI.style.borderWidth = '2px';
 	  incrementUI.style.cursor = 'pointer';
 	  incrementUI.style.textAlign = 'center';
-	  incrementUI.title = 'Click to set the map to Home';
+	  incrementUI.title = 'Total';
 	  controlDiv.appendChild(incrementUI);
 
 	  // Set CSS for the control interior.
 	  totalText = document.createElement('div');
 	  totalText.style.fontFamily = 'Arial,sans-serif';
-	  totalText.style.fontSize = '12px';
-	  totalText.style.paddingLeft = '4px';
-	  totalText.style.paddingRight = '4px';
-	  totalText.innerHTML = '<strong>Passengers: ' + capacity + '</strong>';
+	  totalText.style.fontSize = '36px';
+	  totalText.style.lineHeight = "50px";
+        totalText.style.width = "50px";
+        totalText.style.height = "50px";
+        totalText.style.textAlign = 'center';
+        totalText.style.verticalAlign = 'middle';
+	  totalText.innerHTML = '<strong>' + capacity + '</strong>';
 	  incrementUI.appendChild(totalText);
 
 	  // Setup the click event listeners: simply set the map to Chicago.
