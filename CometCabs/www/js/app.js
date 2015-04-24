@@ -36,7 +36,7 @@ angular.module('starter', ['ionic'])
         var mapOptions = {
           streetViewControl:true,
           center: site,
-          zoom: 16, /*This can be played with. It's either +-1 that we can see building shapes */
+          zoom: 15, /*This can be played with. It's either +-1 that we can see building shapes */
         };
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
@@ -62,7 +62,7 @@ angular.module('starter', ['ionic'])
 		}*/
 		
 		google.maps.event.addListener(map, 'zoom_changed', function() {
-     if (map.getZoom() < 16) map.setZoom(16);
+     if (map.getZoom() < 15) map.setZoom(15);
    });
        
   }
@@ -257,17 +257,22 @@ angular.module('starter', ['ionic'])
   }
     
     function drawCab(cab) {
+        var iconOpen = '/img/busgreen.png';
+        var iconFull = '/img/busred.png';
+        var icon = iconOpen;
           var currentCapacity = cab.Capacity;
           var maxCapacity = cab.MaxCapacity;
           var status = cab.CurrentStatus;
           var fullVal = maxCapacity - currentCapacity;
           if (fullVal <= 0){
-              status = "full";
+              //status = "full";
+              icon = iconFull;
           }
           cabMarker = new google.maps.Marker({
               map: map,
               position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
-              icon: {
+              icon: icon
+              /*icon: {
                   path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
                   fillColor: setCabColor(status),
@@ -275,7 +280,7 @@ angular.module('starter', ['ionic'])
                   strokeColor: setCabColor(status),
                   scale: 7, //pixels
                   strokeWeight: 1.0
-              }
+              }*/
           });
           newcabs.push(cabMarker);
       }

@@ -36,7 +36,7 @@ angular.module('starter', ['ionic'])
         var mapOptions = {
           streetViewControl:true,
           center: site,
-          zoom: 16, /*This can be played with. It's either +-1 that we can see building shapes */
+          zoom: 15, /*This can be played with. It's either +-1 that we can see building shapes */
         };
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
@@ -44,8 +44,10 @@ angular.module('starter', ['ionic'])
         
         //setRouteCoordinates(); //Sets the details for routes
 		//setCabMarkers();
+        setRouteChoice();
 		setInterval(refresh, 1000);
-		/*Sets a marker for the current position */
+		
+        /*Sets a marker for the current position */
 		/*if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
 			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -60,7 +62,7 @@ angular.module('starter', ['ionic'])
 		}*/
 		
 		google.maps.event.addListener(map, 'zoom_changed', function() {
-     if (map.getZoom() < 16) map.setZoom(16);
+     if (map.getZoom() < 15) map.setZoom(15);
    });
        
   }
@@ -81,7 +83,54 @@ angular.module('starter', ['ionic'])
         return xhr;    
     }
     
-  function setRouteCoordinates() {
+    function setRouteChoice() {
+      //load dropdown route choice
+      var url = 'http://cometcabs.azurewebsites.net/api/login';
+ 
+            var xhr = createCORSRequest('GET', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var resources = JSON.parse(xhr.responseText);
+                var routes = resources.Routes;
+                routes.push({"RouteId":0,"RouteName":"All"});
+				
+				var firstLoad = true;
+				if($scope.allRoutes) {
+					firstLoad = false;
+				}
+				
+                $scope.allRoutes = routes;
+				
+				var listItems= "";
+				for (var i = 0; i < $scope.allRoutes.length; i++){
+					listItems+= "<option value='" + $scope.allRoutes[i].RouteId + "'>" + $scope.allRoutes[i].RouteName + "</option>";
+				}
+				var si = document.getElementById("route").selectedIndex;
+				$("#route").html(listItems);
+				if(!firstLoad && si != 0 && si > 0) {
+					document.getElementById("route").selectedIndex = si;
+				} else if(firstLoad) {
+					document.getElementById("route").selectedIndex = $scope.allRoutes.length - 1;
+				}
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+    }
+  
+    function setRouteCoordinates() {
+        //get rider route viewing choice from drop down
+        var routeIDDropDown = document.getElementById("route");
+        var routeName = routeIDDropDown.options[routeIDDropDown.selectedIndex].text;
       /*
 		The JSON for routes:
 		var jsonRoute = {
@@ -103,11 +152,21 @@ angular.module('starter', ['ionic'])
  
             // Response handlers.
             xhr.onload = function () {
-                var routes = JSON.parse(xhr.responseText);
-                for (i = 0; i < routes.length; i++) {
-                    setRouteFromJSON(routes[i]);
+                var JSONroutes = JSON.parse(xhr.responseText);
+                //alert("'" + routeName + "'");
+                if (routeName != 'All' && routeName) {
+                    for (i = 0; i < JSONroutes.length; i++) {
+                        if (routeName == JSONroutes[i].Name) {
+                            setRouteFromJSON(JSONroutes[i]);
+                        }
+                    }
+                    removeOldRoutes(); 
+                } else if (!routeName || routeName == 'All') {
+                    for (i = 0; i < JSONroutes.length; i++) {
+                        setRouteFromJSON(JSONroutes[i]);
+                    }
+                    removeOldRoutes();                    
                 }
-                removeOldRoutes();
             };
  
             xhr.onerror = function () {
@@ -118,7 +177,7 @@ angular.module('starter', ['ionic'])
 	
   }
   
-    function setRouteFromJSON(route, color) {
+    function setRouteFromJSON(route) {
         var routePath = [];
         for (j = 0; j < route.Path.length; j++) {
             routePath.push(new google.maps.LatLng(route.Path[j].Latitude, route.Path[j].Longitude));
@@ -144,6 +203,7 @@ angular.module('starter', ['ionic'])
 		}
 		newroutes = [];
 	}
+    
   function setCabColor(status) {
 	var color = "#008000" ; // == "onduty"
 	if (status == "full") {
@@ -195,18 +255,24 @@ angular.module('starter', ['ionic'])
             xhr.send();
 
   }
+    
     function drawCab(cab) {
+        var iconOpen = '/img/busgreen.png';
+        var iconFull = '/img/busred.png';
+        var icon = iconOpen;
           var currentCapacity = cab.Capacity;
           var maxCapacity = cab.MaxCapacity;
           var status = cab.CurrentStatus;
           var fullVal = maxCapacity - currentCapacity;
           if (fullVal <= 0){
-              status = "full";
+              //status = "full";
+              icon = iconFull;
           }
           cabMarker = new google.maps.Marker({
               map: map,
               position: new google.maps.LatLng(cab.Latitude, cab.Longitude),
-              icon: {
+              icon: icon
+              /*icon: {
                   path: google.maps.SymbolPath.CIRCLE,
                   fillOpacity: 1.0,
                   fillColor: setCabColor(status),
@@ -214,7 +280,7 @@ angular.module('starter', ['ionic'])
                   strokeColor: setCabColor(status),
                   scale: 7, //pixels
                   strokeWeight: 1.0
-              }
+              }*/
           });
           newcabs.push(cabMarker);
       }
@@ -231,6 +297,7 @@ angular.module('starter', ['ionic'])
     }
     
     function refresh() {
+        setRouteChoice();
         setRouteCoordinates(); //Sets the details for routes
 		setCabMarkers();
     }

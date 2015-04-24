@@ -38,10 +38,18 @@
           <div class="buttons">
               <button id="iWantToRideButton" class="button button-clear icon ion-android-bus" ng-click="iWantToRide()">I Want to Ride</button>
           </div>
-      </ion-header-bar>
-      <ion-content>
+	</ion-header-bar>
+	<ion-content>
 		<!--This is all that's needed for the main pane (strangely). Everything else is
 		done in Javascript -->
+		<div>
+			<div class="item item-input item-select">
+				<div class="input-label">
+					Route
+				</div>
+				<select id="route"></select>
+			</div>
+		</div>
 		<div id="map" data-tap-disabled="true"></div>
       </ion-content>
     </ion-pane>

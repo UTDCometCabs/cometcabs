@@ -170,7 +170,7 @@ angular.module('starter.controllers', [])
         var mapOptions = {
           streetViewControl:true,
           center: site,
-          zoom: 16, /*This can be played with. It's either +-1 that we can see building shapes */
+          zoom: 15, /*This can be played with. It's either +-1 that we can see building shapes */
         };
 		/*The element references the div id in index.html*/
         map = new google.maps.Map(document.getElementById("map"),
