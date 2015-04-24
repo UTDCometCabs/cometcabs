@@ -138,8 +138,6 @@ angular.module('starter.controllers', [])
 
 .controller('MapCtrl', function($scope, $state, $ionicLoading, $compile, sharedActivity, speedTracker) {
 			
-	var rutfordMarker; 
-	var phase1SouthMarker;	
 	var map;
     var cabs = [];
 	var routes = [];
@@ -151,13 +149,7 @@ angular.module('starter.controllers', [])
 	var fullControl;
 	var fullUI;	
 	var capacity;
-	var totalText;
-	var xAccel = 0;
-	var yAccel = 0;
-	var zAccel = 0;
-	var xVelocity = 0;
-	var yVelocity = 0;
-	var zVelocity = 9.81;
+	var totalText;	
     //var status = "on-duty"; //initalize cab status to on-duty
 	function initialize() {
 		/*Latitude and longitude for the school. Don't know whether we could use more precision */
@@ -453,8 +445,8 @@ angular.module('starter.controllers', [])
               map: map,
               icon: iconBase + 'schools_maps.png'
             });*/
-          var iconOpen = '/img/busgreen.png';
-          var iconFull = '/img/busred.png';
+          var iconOpen = 'img/busgreen.png';
+          var iconFull = 'img/busred.png';
           var icon = iconOpen;
           var currentCapacity = cab.Capacity;
           var maxCapacity = cab.MaxCapacity;
@@ -532,7 +524,7 @@ angular.module('starter.controllers', [])
   }
   
     function drawRider(rider) {
-        var iconRider = '/img/flagblue.png';
+        var iconRider = 'img/flagblue.png';
 		riderMarker = new google.maps.Marker({
 			map: map,
 			position: new google.maps.LatLng(rider.Latitude, rider.Longitude),

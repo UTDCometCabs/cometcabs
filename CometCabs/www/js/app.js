@@ -257,8 +257,8 @@ angular.module('starter', ['ionic'])
   }
     
     function drawCab(cab) {
-        var iconOpen = '/img/busgreen.png';
-        var iconFull = '/img/busred.png';
+        var iconOpen = 'img/busgreen.png';
+        var iconFull = 'img/busred.png';
         var icon = iconOpen;
           var currentCapacity = cab.Capacity;
           var maxCapacity = cab.MaxCapacity;
