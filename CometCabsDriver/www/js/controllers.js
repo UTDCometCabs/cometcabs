@@ -607,8 +607,30 @@ angular.module('starter.controllers', [])
 	}
 	
 	function incrementRiders() {
-		capacity++;	
+        capacity++;	
 		totalText.innerHTML = '<strong>' + capacity + '</strong>';
+        
+        var url = 'http://cometcabs.azurewebsites.net/api/cabcapacity?activityId='+sharedActivity.getActivity()+'&capacity=1';
+ 
+            var xhr = createCORSRequest('POST', url);
+ 
+            if (!xhr) {
+                alert('CORS not supported');
+                return;
+            }
+ 
+            // Response handlers.
+            xhr.onload = function () {
+                var response = JSON.parse(xhr.responseText);
+                //alert(response);
+            };
+ 
+            xhr.onerror = function () {
+                alert('Error making the request.');
+            };
+ 
+            xhr.send();
+		
 	}
 	function decrementRiders() {
 		if (capacity > 0) {
@@ -786,7 +808,7 @@ angular.module('starter.controllers', [])
 		setRiderMarkers();
         updateGPSLocation();
 		//handleAcceleration();
-		speedScreen();
+		//speedScreen();
     }
 	  
     /*Last line of code from my things. For Driver, you just initialize() rather than doing window.onLoad*/
