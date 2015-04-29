@@ -13,6 +13,7 @@ namespace CometCabsAdmin.Model.Entities
         public long DriverId { get; set; }
         public long RouteId { get; set; }
         public DateTime LoginTime { get; set; }
+        public int TotalCapacity { get; set; }
 
         [ForeignKey(name: "CabId")]
         public virtual Cab Cab { get; set; }

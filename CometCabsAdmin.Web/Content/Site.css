@@ -9,6 +9,11 @@
     height: 400px;
 }
 
+#map-canvas-live {
+    width: 100%;
+    height: 580px;
+}
+
 .hidden{
     display: none;
 }

@@ -67,6 +67,11 @@ namespace CometCabsAdmin.Model.DataServices
             return activity.Id;
         }
 
+        public void UpdateCabActivity(CabActivity cabActivity)
+        {
+            _cabActivityRepository.Update(cabActivity);
+        }
+
         public IQueryable<CabCoordinate> GetCabCoordinates()
         {
             return _cabCoordinateRepository.Table;
@@ -84,7 +89,7 @@ namespace CometCabsAdmin.Model.DataServices
 
         public void UpdateCabCoordinate(CabCoordinate coordinate)
         {
-            _cabCoordinateRepository.Insert(coordinate);
+            _cabCoordinateRepository.Update(coordinate);
         }
 
         #endregion

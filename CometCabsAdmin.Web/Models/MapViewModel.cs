@@ -5,6 +5,7 @@ using System.Web;
 using System.Drawing;
 using System.ComponentModel.DataAnnotations;
 using CometCabsAdmin.Model.Entities;
+using System.Web.Mvc;
 
 namespace CometCabsAdmin.Web.Models
 {
@@ -23,12 +24,13 @@ namespace CometCabsAdmin.Web.Models
         public bool IsActive { get; set; }
 
         [Display(Name = "Choose color")]
-        public string RouteColor { get; set; }
+        public SelectListItem RouteColor { get; set; }
 
         public List<List<RouteCoordinate>> RouteCoordinates { get; set; }
 
         public List<Route> RouteTable { get; set; }
-        
+
+        public List<RouteDirection> RouteDirections { get; set; }
     }
 
     [Serializable]
@@ -37,5 +39,13 @@ namespace CometCabsAdmin.Web.Models
         public long RouteId { get; set; }
         public string k { get; set; }
         public string D { get; set; }
+    }
+
+    public class RouteDirection
+    {
+        public long RouteId { get; set; }
+        public float Latitude { get; set; }
+        public float Longitude { get; set; }
+        public string TagName { get; set; }
     }
 }

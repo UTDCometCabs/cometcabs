@@ -48,11 +48,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="cab in cabTable" ng-click="editUser(cab)">
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ cab.CabCode }}</td>
-                                <td>{{ cab.MaxCapacity }}</td>
-                                <td>{{ cab.Status }}</td>
+                            <tr ng-repeat="cab in cabTable">
+                                <td class="pointer" ng-click="editCab(cab)">{{ $index + 1 }}</td>
+                                <td class="pointer" ng-click="editCab(cab)">{{ cab.CabCode }}</td>
+                                <td class="pointer" ng-click="editCab(cab)">{{ cab.MaxCapacity }}</td>
+                                <td class="pointer" ng-click="editCab(cab)">{{ cab.Status }}</td>
                                 <td class="icon glyphicon glyphicon-trash" ng-click="deleteCab(cab)" title="Delete cab"></td>
                             </tr>
                         </tbody>
@@ -186,7 +186,7 @@
                     $scope.editMode = true;
                 };
 
-                $scope.editUser = function (cab) {  
+                $scope.editCab = function (cab) {  
                     $scope.editMode = true;
                     $scope.id = eval(cab.Id);
                     $scope.cabCode = cab.CabCode;
@@ -195,6 +195,26 @@
                     $scope.selectedStatus = cab.Status;
                 };
 
+                $scope.deleteCab = function (cab) {
+                    ngDialog.openConfirm({
+                        template: 'delete-dialog',
+                        className: 'ngdialog-theme-default',
+                        scope: $scope
+                    }).then(function () {
+                        $http({ method: 'POST', url: '/Cabs/DeleteCab', contentType: 'application/json', data: cab })//route) })
+                            .success(function (data) {
+                                location.href = '/Cabs/'
+                            })
+                            .error(function (data, status, headers, config) {
+                                // called asynchronously if an error occurs
+                                // or server returns response with an error status.
+                                alert(data + ' ' + status + ' ' + headers + ' ' + config)
+                            }
+                        );
+                    }, function () {
+
+                    });
+                }
                 function clearForm() {
                     $scope.editMode = false;
                     $scope.cabCode = '';

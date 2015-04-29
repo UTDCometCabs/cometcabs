@@ -3,33 +3,85 @@
 }
 
 <h2>@ViewBag.Title</h2>
-
 <div ng-controller="StatisticController">
     <div class="row">
         <div class="col-md-2">
             <ul class="nav nav-pills">
                 <li role="presentation">
-                    <a href="javascript:void(0)" ng-click="viewChart('rider')">View Riders Chart</a>
+                    <a href="javascript:void(0)" ng-click="viewChart('rider')">View Total Riders Chart</a>
                 </li>
                 <li role="presentation">
-                    <a href="javascript:void(0)" ng-click="viewChart('cab')">View Cabs Chart</a>
+                    <a href="javascript:void(0)" ng-click="viewChart('interest')">View Interest Flagging Usage Chart</a>
                 </li>
-                <li role="presentation">
+                <li role="presentation" ng-show="false">
                     <a href="javascript:void(0)" ng-click="viewChart('route')">View Routes Chart</a>
                 </li>
             </ul>
         </div>
         <div class="col-md-7" style="padding-left: 0px;">
-            <img id="chart" src="" />
+            <div ng-show="chartType == 'rider'">
+                <table class="table table-striped table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th>
+                                No.
+                            </th>
+                            <th>
+                                Day
+                            </th>
+                            <th>
+                                Cab Code
+                            </th>
+                            <th>
+                                Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="activity in cabTable">
+                            <td class="pointer">{{ $index + 1 }}</td>
+                            <td class="pointer">{{ daysOfWeek[activity.DayOfWeek] }}</td>
+                            <td class="pointer">{{ activity.CabCode }}</td>
+                            <td class="pointer">{{ activity.Capacity }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div ng-show="chartType == 'interest'">
+                <table class="table table-striped table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th>
+                                No.
+                            </th>
+                            <th>
+                                Day
+                            </th>
+                            <th>
+                                Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="activity in cabTable">
+                            <td class="pointer">{{ $index + 1 }}</td>
+                            <td class="pointer">{{ daysOfWeek[activity.DayOfWeek] }}</td>
+                            <td class="pointer">{{ activity.Total }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="chart-div">
+
+            </div>
         </div>
         <div class="col-md-3" style="padding-left: 0px;">
             <div class="panel panel-default" ng-show="chartType != ''">
                 <!-- Default panel contents -->
                 <div class=" panel-heading" ng-show="chartType != ''">Parameter</div>
                 <div class="panel-body" ng-show="charttype != ''">
-                    <div id=" rider-parameter" ng-show="chartType == 'rider'">
-                        @using (Html.BeginForm(new { @class = "form-horizontal" }))
-                        {
+                    <div id=" rider-parameter" ng-show="chartType == 'rider' || chartType == 'interest'">
+                        <form class="form-horizontal">
                             <div class="form-group">
                                 <div class="col-sm-4">
                                     <label class="col-lg-12 control-label">Weekending</label>
@@ -40,13 +92,13 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-4">
-                                    <button type="button" class="btn btn-default" ng-click="refreshChart('rider')">Refresh</button>
+                                    <button type="button" class="btn btn-default" ng-click="viewChart(chartType)">Refresh</button>
                                 </div>
                                 <div class="col-sm-8">
                                     <button type="button" class="btn btn-default" ng-click="clearParameters()">Clear</button>
                                 </div>
                             </div>
-                        }
+                        </form>
                     </div>
                     <div id="rider-parameter" ng-show="chartType == 'cab'">
                         @using (Html.BeginForm(new { @class = "form-horizontal" }))
@@ -89,7 +141,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">    
+                            <div class="form-group">
                                 <div class="col-sm-3">
                                     <button type="button" class="btn btn-default" ng-click="refreshChart('cab')">Refresh</button>
                                 </div>
@@ -158,18 +210,130 @@
 
 @section ViewScripts
 {
-    <script>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        'use strict';
+        google.load("visualization", "1", { packages: ["corechart"] });
+        google.setOnLoadCallback(function () {
+            // angular.bootstrap(document.body, ['CometCabs']);
+        });
+
         angular.module('CometCabs', [])
             .controller('StatisticController', function ($scope, $http, $sce, $compile) {
                 $scope.chartType = '';
-
-                var chart = $('#chart');
-                chart.hide();
+                $scope.weekending = new Date();
+                $scope.chartTable = [];
+                $scope.daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', ];
 
                 $scope.viewChart = function (param) {
                     $scope.chartType = param;
-                    chart.attr('src', '/Statistics/ViewCharts?key=' + param);
-                    chart.show();
+                    var url = '/Statistics/ViewCharts?key=' + param;
+
+                    if (param === 'rider') {
+                        var week = $scope.weekending.getMonth() + 1 + '/' + $scope.weekending.getDate() + '/' + $scope.weekending.getFullYear();
+
+                        url = '/Statistics/ViewTotalRider?week=' + week;
+                    } else if (param === 'interest') {
+                        var week = $scope.weekending.getMonth() + 1 + '/' + $scope.weekending.getDate() + '/' + $scope.weekending.getFullYear();
+
+                        url = '/Statistics/ViewTotalInterests?week=' + week;
+                    }
+
+                    $http({ method: 'GET', url: url })
+                    .success(function (data) {
+                        if (data != undefined) {
+                            var cabs = data["Cabs"];
+                            var routes = ["Routes"];
+
+                            angular.forEach(data, function (item, index) {
+                                console.log(item);
+                                if (item != undefined) {
+                                    switch (index) {
+                                        case "TotalRiderByCab":
+                                            var datasorce = new google.visualization.DataTable();
+                                            $scope.cabTable = item;
+                                            datasorce.addColumn('string', 'Cabs')
+
+                                            angular.forEach(cabs, function (cab, index) {
+                                                datasorce.addColumn('number', cab);
+                                            });
+
+                                            var rows = [];
+
+                                            angular.forEach($scope.daysOfWeek, function (day, index) {
+                                                var row = [day];
+                                                var dayOfWeek = index
+
+                                                angular.forEach(cabs, function (cab, index) {
+                                                    var capacity = 0
+
+                                                    angular.forEach(item, function (datarow, index) {
+                                                        if ((datarow.DayOfWeek == dayOfWeek) && (datarow.CabCode == cab)) {
+                                                            capacity = datarow.Capacity;
+                                                        }
+                                                    });
+
+                                                    row.push(capacity);
+                                                });
+
+                                                rows.push(row);
+                                            });
+
+                                            datasorce.addRows(rows);
+
+                                            var options = {
+                                                title: 'Total Rider By Cab'
+                                            };
+                                            var chart = new google.visualization.LineChart(document.getElementById('chart-div'));
+                                            chart.draw(datasorce, options);
+
+                                            break;
+
+                                        case "TotalInterests":
+                                            var datasorce = new google.visualization.DataTable();
+                                            $scope.cabTable = item;
+                                            datasorce.addColumn('string', 'Interests')
+                                            datasorce.addColumn('number', 'Number of Interest');
+
+                                            var rows = [];
+
+                                            angular.forEach($scope.daysOfWeek, function (day, index) {
+                                                var row = [day];
+                                                var dayOfWeek = index
+                                                var capacity = 0
+
+                                                angular.forEach(item, function (datarow, index) {
+                                                    if (datarow.DayOfWeek == dayOfWeek) {
+                                                        capacity = datarow.Total;
+                                                    }
+                                                });
+
+                                                row.push(capacity);
+                                                rows.push(row);
+                                            });
+
+                                            datasorce.addRows(rows);
+
+                                            var options = {
+                                                title: 'Total Number of Interests'
+                                            };
+                                            var chart = new google.visualization.LineChart(document.getElementById('chart-div'));
+                                            chart.draw(datasorce, options);
+
+                                            break;
+                                        case "TotalRiderByRoute":
+                                            break;
+                                    };
+                                }
+                            });
+                        }
+                    })
+                        .error(function (data, status, headers, config) {
+                            // called asynchronously if an error occurs
+                            // or server returns response with an error status.
+                            alert(data + ' ' + status + ' ' + headers + ' ' + config);
+                        });
                 };
 
                 $scope.refreshChart = function (param) {

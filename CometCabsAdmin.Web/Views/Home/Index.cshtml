@@ -1,75 +1,394 @@
 ﻿@model IEnumerable<CometCabsAdmin.Model.Entities.User>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "CometCabs Live Map";
 }
 
-<h2>View</h2>
+<h2>@ViewBag.Title</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CreateDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UpdatedBy)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UpdateDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.IPAddress)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Username)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.EmailAddress)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Password)
-        </th>
-        <th></th>
-    </tr>
+<div ng-controller="LiveController">
+    <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-11">
+            <div id="map-canvas-live"></div>
+        </div>
+    </div>
+</div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.CreatedBy)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CreateDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.UpdatedBy)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.UpdateDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.IPAddress)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Username)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.EmailAddress)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Password)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
+@section ViewScripts
+{
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=drawing,places"></script>
+    <script type="text/javascript">
+        'use strict';
+        // var websiteUrl = 'cometcabs.utd.edu';
+        var websiteUrl = 'cometcabs.azurewebsites.net';
+        var apiKey = 'AIzaSyBifWbwLg0wIJ9wv7CdP9tjAepH4SzMHC8';
+        var map = null;
+        var placeIdArray = [];
+        var snappedCoordinates = [];
+        var polylines = [];
+        var cabMarkers = [];
+        var riderMarkers = [];
+
+        function initialize() {
+            var mapOptions = {
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                zoom: 16,
+                center: { lat: 32.98435, lng: -96.748255 },
+                minZoom: 15,
+                maxZoom: 18,
+                disableDefaultUI: true,
+                disableDoubleClickZoom: true,
+                zoomControl: true,
+            };
+
+            var canvas = document.getElementById('map-canvas-live');
+
+            map = new google.maps.Map(canvas, mapOptions);
+            // clickListener = google.maps.event.addListener(map, "click", getMapCoordinate);
+            // google.maps.event.addListener(map, 'click', getMapCoordinate);
+        }
+
+        function getMapCoordinate(args) {
+            //console.log(args);
+            $('.latitude').val(args.latLng.k);
+            $('.longitude').val(args.latLng.D);
+        }
+
+        // Snap a user-created polyline to roads and draw the snapped path
+        function runSnapToRoad(path, color) {
+            $.get('https://roads.googleapis.com/v1/snapToRoads', {
+                interpolate: true,
+                key: apiKey,
+                path: path.join('|')
+            }, function (data) {
+                processSnapToRoadResponse(data);
+                drawSnappedPolyline(color);
+                // getAndDrawSpeedLimits();
+            });
+        }
+
+        // Store snapped polyline returned by the snap-to-road method.
+        function processSnapToRoadResponse(data) {
+            snappedCoordinates = [];
+            placeIdArray = [];
+            for (var i = 0; i < data.snappedPoints.length; i++) {
+                var latlng = new google.maps.LatLng(
+                    data.snappedPoints[i].location.latitude,
+                    data.snappedPoints[i].location.longitude);
+                snappedCoordinates.push(latlng);
+            }
+        }
+
+        // Draws the snapped polyline (after processing snap-to-road response).
+        function drawSnappedPolyline(color) {
+            var snappedPolyline = new google.maps.Polyline({
+                path: snappedCoordinates,
+                strokeColor: color,
+                strokeWeight: 5,
+                editable: false
+            });
+
+            snappedPolyline.setMap(map);
+            polylines.push(snappedPolyline);
+
+            google.maps.event.addListener(snappedPolyline, 'click', getMapCoordinate);
+        }
+
+        // Gets speed limits (for 100 segments at a time) and draws a polyline
+        // color-coded by speed limit. Must be called after processing snap-to-road
+        // response.
+        function getAndDrawSpeedLimits() {
+            for (var i = 0; i <= placeIdArray.length / 100; i++) {
+                // Ensure that no query exceeds the max 100 placeID limit.
+                var start = i * 100;
+                var end = Math.min((i + 1) * 100 - 1, placeIdArray.length);
+
+                drawSpeedLimits(start, end);
+            }
+        }
+
+        // Gets speed limits for a 100-segment path and draws a polyline color-coded by
+        // speed limit. Must be called after processing snap-to-road response.
+        function drawSpeedLimits(start, end) {
+            var placeIdQuery = '';
+            for (var i = start; i < end; i++) {
+                placeIdQuery += '&placeId=' + placeIdArray[i];
+            }
+
+            $.get('https://roads.googleapis.com/v1/speedLimits',
+                'key=' + apiKey + placeIdQuery,
+                function (speedData) {
+                    processSpeedLimitResponse(speedData, start);
+                }
+            );
+        }
+
+        // Draw a polyline segment (up to 100 road segments) color-coded by speed limit.
+        function processSpeedLimitResponse(speedData, start) {
+            var end = start + speedData.speedLimits.length;
+            for (var i = 0; i < speedData.speedLimits.length - 1; i++) {
+                var speedLimit = speedData.speedLimits[i].speedLimit;
+                var color = getColorForSpeed(speedLimit);
+
+                // Take two points for a single-segment polyline.
+                var coords = snappedCoordinates.slice(start + i, start + i + 2);
+
+                var snappedPolyline = new google.maps.Polyline({
+                    path: coords,
+                    strokeColor: color,
+                    strokeWeight: 6
+                });
+
+                snappedPolyline.setMap(map);
+                polylines.push(snappedPolyline);
+            }
+        }
+
+        function getColorForSpeed(speed_kph) {
+            if (speed_kph <= 40) {
+                return 'purple';
+            }
+            if (speed_kph <= 50) {
+                return 'blue';
+            }
+            if (speed_kph <= 60) {
+                return 'green';
+            }
+            if (speed_kph <= 80) {
+                return 'yellow';
+            }
+            if (speed_kph <= 100) {
+                return 'orange';
+            }
+            return 'red';
+        }
+
+        function setCabMarkers(cabInfo) {
+            // Add markers to the map
+            // Marker sizes are expressed as a Size of X,Y
+            // where the origin of the image (0,0) is located
+            // in the top left of the image.
+
+            // Origins, anchor positions and coordinates of the marker
+            // increase in the X direction to the right and in
+            // the Y direction down.
+            var img = cabInfo.MaxCapacity < cabInfo.Capacity ? '/Content/Images/busred.png': '/Content/Images/busgreen.png';
+
+            var image = {
+                url: img,
+                // This marker is 32 pixels wide by 37 pixels tall.
+                size: new google.maps.Size(32, 37),
+                // The origin for this image is 0,0.
+                origin: new google.maps.Point(0, 0),
+                // The anchor for this image is the base of the flagpole at 0,32.
+                anchor: new google.maps.Point(0, 37)
+            };
+
+            // Shapes define the clickable region of the icon.
+            // The type defines an HTML &lt;area&gt; element 'poly' which
+            // traces out a polygon as a series of X,Y points. The final
+            // coordinate closes the poly by connecting to the first
+            // coordinate.
+            var shape = {
+                coords: [1, 1, 1, 37, 30, 37, 30, 1],
+                type: 'poly'
+            };
+
+            var cabDetail = '<div id="content" style="width: 250px;"><fieldset>' +
+                '<legend>' + cabInfo.CabCode + ' Detail</legend>' +
+                '<div class="row">' +
+                '<div class="col-sm-4">Route in service:</div>' +
+                '<div class="col-sm-8">' + cabInfo.RouteName + '</div>' +
+                '</div>' +
+                '<div class="row">' +
+                '<div class="col-sm-4">Driver in charge:</div>' +
+                '<div class="col-sm-8">' + cabInfo.DriverName + '</div>' +
+                '</div>' +
+                '<div class="row">' +
+                '<div class="col-sm-4">Current capacity:</div>' +
+                '<div class="col-sm-8">' + cabInfo.Capacity + '</div>' +
+                '</div>' +
+                '<div class="row">' +
+                '<div class="col-sm-4">MaxCapacity:</div>' +
+                '<div class="col-sm-8">' + cabInfo.MaxCapacity + '</div>' +
+                '</div>' +
+                '</fieldset></div>';
+
+            var infowindow = new google.maps.InfoWindow({
+                content: cabDetail,
+                maxWidth: 400,
+            });
+
+            var cabLatLng = new google.maps.LatLng(cabInfo.Latitude, cabInfo.Longitude);
+            var marker = new google.maps.Marker({
+                position: cabLatLng,
+                map: map,
+                icon: image,
+                shape: shape,
+                title: cabInfo.CabCode,
+                //zIndex: cab[3]
+            });
+
+            cabMarkers.push(marker);
+
+            google.maps.event.addListener(marker, 'click', function () {
+                infowindow.open(map, marker);
+            });
+
+        }
+
+        function setRiderMarkers(riderInfo) {
+            // Add markers to the map
+            // Marker sizes are expressed as a Size of X,Y
+            // where the origin of the image (0,0) is located
+            // in the top left of the image.
+
+            // Origins, anchor positions and coordinates of the marker
+            // increase in the X direction to the right and in
+            // the Y direction down.
+            var image = {
+                url: '/Content/Images/flagblue.png',
+                // This marker is 20 pixels wide by 32 pixels tall.
+                size: new google.maps.Size(30, 37),
+                // The origin for this image is 0,0.
+                origin: new google.maps.Point(0, 0),
+                // The anchor for this image is the base of the flagpole at 0,32.
+                anchor: new google.maps.Point(0, 37)
+            };
+
+            // Shapes define the clickable region of the icon.
+            // The type defines an HTML &lt;area&gt; element 'poly' which
+            // traces out a polygon as a series of X,Y points. The final
+            // coordinate closes the poly by connecting to the first
+            // coordinate.
+            var shape = {
+                coords: [1, 1, 1, 37, 30, 37, 30, 1],
+                type: 'poly'
+            };
+
+            var riderLatLng = new google.maps.LatLng(riderInfo.Latitude, riderInfo.Longitude);
+            var marker = new google.maps.Marker({
+                position: riderLatLng,
+                map: map,
+                icon: image,
+                shape: shape,
+                title: "Rider",
+                //zIndex: cab[3]
+            });
+
+            riderMarkers.push(marker);
+        }
+
+        function parseDirection(result) {
+            var data = result.routes[0].legs[0];
+            var direction = [];
+
+            var start = data.start_location;
+            direction.push({ TagName: 'origin', Latitude: start.k, Longitude: start.D });
+
+            var waypoints = data.via_waypoints;
+
+            $.each(waypoints, function (index, value) {
+                direction.push({ TagName: 'waypoint', Latitude: value.k, Longitude: value.D });
+            });
+
+            var end = data.end_location;
+            direction.push({ TagName: 'end', Latitude: end.k, Longitude: end.D });
+
+            return direction;
+        }
+
+        $(window).load(initialize);
+
+        (function (angular) {
+            // D: longitude
+            // k: latitude
+            var app = angular.module('CometCabs', []);
+
+            // DONE: add confirmation dialog
+            // TODO: cancelling drawing map should remove route
+            // TODO: show information status (figure out how to use partial in angularjs)
+            // TODO: edit/update route
+            // DONE: delete route
+            // TODO: add campus map overlay
+            // TODO: remove color(s) that have been used in route map
+
+            app.controller('LiveController', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
+                drawRoutes();
+
+                $interval(function () {
+                    clearMarker(cabMarkers);
+                    clearMarker(riderMarkers);
+                    getCabActivities();
+                    getInterests();
+                }, 5000);
+
+                function clearMarker(markers) {
+                    angular.forEach(markers, function (marker, key) {
+                        marker.setMap(null);
+                    });
+                }
+                
+                function drawRoutes() {
+                    $http({ method: 'GET', url: 'http://' + websiteUrl + '/api/routes' })
+                            .success(function (routes) {
+                                //var routes = JSON.parse(data);
+
+                                angular.forEach(routes, function (route, index) {
+                                    var paths = [];
+                                    var color = route.Color;
+
+                                    angular.forEach(route.Path, function (path, key) {
+                                        paths.push(path.Latitude + ',' + path.Longitude);
+                                    });
+
+                                    runSnapToRoad(paths, color)
+                                });
+                            })
+                            .error(function (data, status, headers, config) {
+                                // called asynchronously if an error occurs
+                                // or server returns response with an error status.
+                                console.log(data + ' ' + status + ' ' + headers + ' ' + config)
+                            });
+                };
+
+                function getCabActivities() {
+                    $http({ method: 'GET', url: 'http://' + websiteUrl + '/api/CabActivity' })
+                        .success(function (activities) {
+                            angular.forEach(activities, function (activity, key) {
+                                var cabInfo = {
+                                    CabCode: activity.CabCode,
+                                    RouteName: activity.RouteName,
+                                    DriverName: activity.DriverName,
+                                    Capacity: activity.Capacity,
+                                    MaxCapacity: activity.MaxCapacity,
+                                    CurrentStatus: activity.CurrentStatus,
+                                    Longitude: activity.Longitude,
+                                    Latitude: activity.Latitude,
+                                };
+
+                                setCabMarkers(cabInfo);
+                            });
+                        });
+                };
+
+                function getInterests() {
+                    $http({ method: 'GET', url: 'http://' + websiteUrl + '/api/Interests' })
+                        .success(function (interests) {
+                            angular.forEach(interests, function (interest, key) {
+                                var rider = {
+                                    FlagTime: interest.FlagTime,
+                                    CurrentTime: interest.CurrentTime,
+                                    Longitude: interest.Longitude,
+                                    Latitude: interest.Latitude,
+                                };
+
+                                setRiderMarkers(rider);
+                            });
+                        });
+                };
+            }]);
+        })(window.angular);
+    </script>
 }
-
-</table>

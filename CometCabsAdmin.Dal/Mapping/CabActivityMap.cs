@@ -16,6 +16,7 @@ namespace CometCabsAdmin.Dal.Mapping
             HasKey(t => t.Id);
             Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
+            Property(t => t.TotalCapacity).HasColumnType("int").IsRequired();
             Property(t => t.LoginTime).IsRequired();
             Property(t => t.CreatedBy).IsRequired().HasColumnType("nvarchar").HasMaxLength(20);
             Property(t => t.CreateDate).IsRequired();

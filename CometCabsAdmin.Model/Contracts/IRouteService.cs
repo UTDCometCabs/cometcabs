@@ -19,5 +19,9 @@ namespace CometCabsAdmin.Model.Contracts
         RouteCoordinates GetRouteCoordinate(float latitude, float longitude);
         void DeleteRouteCoordinate(RouteCoordinates coordinate);
         void DeleteRouteCoordinate(long id);
+
+        IQueryable<Entities.RouteDirections> GetRouteDirections(long id);
+        void DeleteRouteDirections(Entities.RouteDirections routeDirection);
+        void DeleteRouteDirections(long id);
     }
 }

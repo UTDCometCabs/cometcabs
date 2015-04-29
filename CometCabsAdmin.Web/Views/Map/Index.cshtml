@@ -300,7 +300,11 @@
         function resetMap() {
             latlng = new google.maps.MVCArray();
             poly = null;
-            directionsDisplay.setMap(null);
+
+            if (directionsDisplay != undefined) {
+                directionsDisplay.setMap(null);
+            }
+
             map.setOptions({ draggableCursor: 'default' });
             // clickListener.remove();
             // clickListener = google.maps.event.addListener(map, "click", getMapCoordinate);
@@ -353,14 +357,20 @@
                 $scope.isActiveRoute = false;
 
                 $scope.colorList = [
-                    { Text: "Gray", Value: "Gray" },
-                    { Text: "Red", Value: "Red" },
-                    { Text: "Orange", Value: "Orange" },
-                    { Text: "Yellow", Value: "Yellow" },
-                    { Text: "Green", Value: "Green" },
-                    { Text: "Blue", Value: "Blue" },
-                    { Text: "Purple", Value: "Purple" },
-                    { Text: "Teal", Value: "Teal" },
+                    { Text: "Brilliance white", Value: "#FFFFFF" },
+                    { Text: "Flame orange", Value: "#C75B12" },
+                    { Text: "Solar orange", Value: "#E98300" },
+                    { Text: "Spark orange", Value: "#FFB612" },
+                    { Text: "Orange", Value: "#ff9900" },
+                    { Text: "Eco green", Value: "#008542" },
+                    { Text: "Seedling green", Value: "#C9DD03" },
+                    { Text: "Sapling green", Value: "#69BE28" },
+                    { Text: "Green", Value: "#005710" },
+                    { Text: "Sky blue", Value: "#5BC6E8" },
+                    { Text: "Stratos blue", Value: "#00A1DE" },
+                    { Text: "Space blue", Value: "#0039A6" },
+                    { Text: "Purple", Value: "#773dbc" },
+                    { Text: "Pink", Value: "#ff33ff" },
                 ];
 
                 $scope.EditMode = false;
@@ -369,6 +379,9 @@
 
                 $scope.discardChanges = function () {
                     $scope.EditMode = false;
+                    $scope.routeName = '';
+                    $scope.routeDesc = '';
+                    $scope.isActive = false;
                     resetMap();
                 };
 
@@ -412,7 +425,7 @@
                 };
 
                 $scope.editRoute = function (args) {
-                    // console.log(args);                    
+                    // console.log(args);
                     var coordinate = {
                         latitude: args.latLng.k,
                         longitude: args.latLng.D,
@@ -420,23 +433,72 @@
 
                     $http({ method: 'POST', url: '/Map/GetRoute', contentType: 'application/json', data: coordinate })
                         .success(function (data) {
-                            // console.log(data);
-                            $scope.EditMode = typeof (data) == 'object';
+                            if (data != '') {
+                                // console.log(data);
+                                var routeData = JSON.parse(data);
 
-                            if ($scope.EditMode) {
-                                $scope.routeName = data.RouteName;
-                                $scope.routeDesc = data.RouteDesc;
-                                $scope.selectedColor = data.RouteColor;
-                                $scope.isActiveRoute = data.IsActive;
+                                $scope.EditMode = typeof (routeData) == 'object';
+
+                                if ($scope.EditMode) {
+                                    $scope.routeId = routeData.RouteId;
+                                    $scope.routeName = routeData.RouteName;
+                                    $scope.routeDesc = routeData.RouteDesc;
+                                    $scope.selectedColor = routeData.RouteColor;
+                                    $scope.isActiveRoute = routeData.IsActive;
+
+                                    var start;
+                                    var end;
+                                    var waypoints = [];
+
+                                    angular.forEach(routeData.RouteDirections, function (direction, index) {
+                                        if (direction.TagName === 'origin') {
+                                            start = new google.maps.LatLng(direction.Latitude, direction.Longitude);
+                                        }
+
+                                        if (direction.TagName === 'waypoint') {
+                                            waypoints.push({
+                                                location: new google.maps.LatLng(direction.Latitude, direction.Longitude),
+                                                stopover: false,
+                                            });
+                                        }
+
+                                        if (direction.TagName === 'end') {
+                                            end = new google.maps.LatLng(direction.Latitude, direction.Longitude);
+                                        }
+                                    });
+
+                                    var request = {
+                                        origin: start,
+                                        destination: end,
+                                        waypoints: waypoints,
+                                        optimizeWaypoints: false,
+                                        travelMode: google.maps.TravelMode.WALKING
+                                    };
+
+                                    directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+                                    directionsDisplay.setMap(map);
+                                    directionsService.route(request, function (response, status) {
+                                        if (status == google.maps.DirectionsStatus.OK) {
+                                            directionsDisplay.setDirections(response);
+                                            $scope.snappedCoordinates = response.routes[0].overview_path;
+                                            $scope.routeDirections = parseDirection(response);
+                                        }
+                                    });
+
+                                    google.maps.event.addListener(directionsDisplay, 'directions_changed', function () {
+                                        var result = directionsDisplay.getDirections();
+                                        $scope.snappedCoordinates = result.routes[0].overview_path;
+                                        $scope.routeDirections = parseDirection(result);
+                                    });
+                                }
                             }
-
                         })
                         .error(function (data, status, headers, config) {
                             // called asynchronously if an error occurs
                             // or server returns response with an error status.
                             console.log(data + ' ' + status + ' ' + headers + ' ' + config)
                         });
-                }
+                };
 
                 $scope.saveRoute = function (event) {
                     var route = {
@@ -484,16 +546,41 @@
                     });
                 };
 
-                for (var route in $scope.routeCoordinates) {
+                // var websiteUrl = 'cometcabs.utd.edu';
+                var websiteUrl = 'cometcabs.azurewebsites.net';
+
+                $http({ method: 'GET', url: 'http://' + websiteUrl + '/api/routes' })
+                    .success(function (routes) {
+                        //var routes = JSON.parse(data);
+
+                        angular.forEach(routes, function (route, index) {
+                            var paths = [];
+                            var color = route.Color;
+
+                            angular.forEach(route.Path, function (path, key) {
+                                paths.push(path.Latitude + ',' + path.Longitude);
+                            });
+
+                            runSnapToRoad(paths, color)
+                        });
+                    })
+                    .error(function (data, status, headers, config) {
+                        // called asynchronously if an error occurs
+                        // or server returns response with an error status.
+                        console.log(data + ' ' + status + ' ' + headers + ' ' + config)
+                    });
+
+                /*
+                angular.forEach($scope.routeCoordinates, function(coordinates, index) {
                     var path = [];
-                    var color = $scope.routeTable[route].RouteColor;
+                    var color = $scope.routeTable[index].RouteColor;
 
-                    for (var coordinate in $scope.routeCoordinates[route]) {
-                        path.push($scope.routeCoordinates[route][coordinate].k + ',' + $scope.routeCoordinates[route][coordinate].D);
-                    }
+                    angular.forEach(coordinates, function (coordinate, index2) {
+                        path.push(coordinate.k + ',' + coordinate.D);
+                    });
 
-                    runSnapToRoad(path, color)                    
-                }
+                    runSnapToRoad(path, color)
+                });                */
             }]);
         })(window.angular);
     </script>

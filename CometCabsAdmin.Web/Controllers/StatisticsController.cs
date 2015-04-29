@@ -1,91 +1,95 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.SqlServer;
+using System.Globalization;
 using System.Linq;
-using System.Web;
-using System.Web.Helpers;
 using System.Web.Mvc;
-using System.IO;
+using CometCabsAdmin.Model.Contracts;
+using CometCabsAdmin.Web.Models;
 
 namespace CometCabsAdmin.Web.Controllers
 {
     public class StatisticsController : Controller
     {
+        private ICabService _cabService;
+        private IRouteService _routeService;
+        private IInterestsService _interestsService;
+
+        public StatisticsController(ICabService cabService
+            , IRouteService routeService
+            , IInterestsService interestsService)
+        {
+            _cabService = cabService;
+            _routeService = routeService;
+            _interestsService = interestsService;
+        }
+
         // GET: Statistics
         public ActionResult Index()
         {
             return View();
         }
 
-        // [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult ViewCharts(string key)
+        [AcceptVerbs(HttpVerbs.Get)]
+        public ActionResult ViewTotalRider(string week)
         {
-            byte[] myChart = null;
+            StatisticsModel model = new StatisticsModel(_cabService, _routeService);
+            List<TotalRiderByCabModel> riderModel = GetRiderTotal(DateTime.Parse(week));
 
-            switch (key)
-            {
-                case "rider":
-                    myChart = new Chart(width: 800, height: 500)
-                        .AddTitle("Weekly Cabs Usage By Driver")
-                        .AddSeries(
-                            name: "Monday",
-                            xValue: new[] { "Cab 1", "Cab 2", "Cab 3", "Cab 4", "Cab 5" },
-                            yValues: new[] { "3", "6", "4", "5", "3" }).AddLegend("Monday")
-                        .AddSeries(
-                            name: "Tuesday",
-                            xValue: new[] { "Cab 1", "Cab 2", "Cab 3", "Cab 4", "Cab 5" },
-                            yValues: new[] { "2", "4", "4", "6", "1" }).AddLegend("Tuesday")
-                        .AddSeries(
-                            name: "Wednesday",
-                            xValue: new[] { "Cab 1", "Cab 2", "Cab 3", "Cab 4", "Cab 5" },
-                            yValues: new[] { "6", "8", "5", "5", "6" }).AddLegend("Wednesday")
-                        .AddSeries(
-                            name: "Thursday",
-                            xValue: new[] { "Cab 1", "Cab 2", "Cab 3", "Cab 4", "Cab 5" },
-                            yValues: new[] { "5", "7", "4", "6", "7" }).AddLegend("Thursday")
-                        .AddSeries(
-                            name: "Friday",
-                            xValue: new[] { "Cab 1", "Cab 2", "Cab 3", "Cab 4", "Cab 5" },
-                            yValues: new[] { "2", "2", "3", "4", "1" }).AddLegend("Friday")
-                        .AddSeries(
-                            name: "Saturday",
-                            xValue: new[] { "Cab 1", "Cab 2", "Cab 3", "Cab 4", "Cab 5" },
-                            yValues: new[] { "1", "1", "1", "2", "3" }).AddLegend("Saturday")
-                        .AddSeries(
-                            name: "Sunday",
-                            xValue: new[] { "Cab 1", "Cab 2", "Cab 3", "Cab 4", "Cab 5" },
-                            yValues: new[] { "1", "0", "1", "2", "0" }).AddLegend("Sunday")
-                        .GetBytes("png");
+            model.TotalRiderByCab = riderModel;
 
-                    break;
-                case "cab":
-                    myChart = new Chart(width: 600, height: 400)
-                        .AddTitle("Cabs")
-                        .AddSeries(
-                            chartType: "pie",
-                            legend: "Rainfall",
-                            xValue: new[] { "Jan", "Feb", "Mar", "Apr", "May" },
-                            yValues: new[] { "20", "20", "40", "10", "10" })
-                        .GetBytes("png");
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
 
-                    break;
-                case "route":
-                    myChart = new Chart(width: 600, height: 400)
-                        .AddTitle("Route")
-                        .AddSeries(
-                            name: "Route 1",
-                            chartType: "line",                            
-                            xValue: new[] { "Jan", "Feb", "Mar", "Apr", "May" },
-                            yValues: new[] { "11", "20", "4", "5", "8" }).AddLegend("Route 1")
-                        .AddSeries(
-                            name: "Route 2",
-                            chartType: "line",
-                            xValue: new[] { "Jan", "Feb", "Mar", "Apr", "May" },
-                            yValues: new[] { "3", "20", "25", "16", "12" }).AddLegend("Route 2")
-                        .GetBytes("png");
-                    break;
-            }
+        [AcceptVerbs(HttpVerbs.Get)]
+        public ActionResult ViewTotalInterests(string week)
+        {
+            StatisticsModel model = new StatisticsModel(_cabService, _routeService);
+            List<TotalInterestsModel> interestsModel = GetInterestsTotal(DateTime.Parse(week));
 
-            return File(myChart, "image/png");
+            model.TotalInterests = interestsModel;
+
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+
+        private List<TotalRiderByCabModel> GetRiderTotal(DateTime week)
+        {
+            var cal = System.Globalization.DateTimeFormatInfo.CurrentInfo.Calendar;
+            int weekNumber = cal.GetWeekOfYear(week, CalendarWeekRule.FirstDay, DayOfWeek.Sunday);
+
+            List<TotalRiderByCabModel> coordinates = _cabService.GetCabActivity()
+                .Where(c => SqlFunctions.DatePart("week", c.LoginTime) == weekNumber)
+                .OrderBy(c => c.CabId)
+                .ThenBy(c => c.LoginTime)
+                .GroupBy(c => new { DayOfWeek = SqlFunctions.DatePart("weekday", c.LoginTime).Value, CabCode = c.Cab.CabCode })
+                .Select(c => new TotalRiderByCabModel
+                {
+                    CabCode = c.Key.CabCode,
+                    DayOfWeek = c.Key.DayOfWeek - 1,
+                    Capacity = c.Sum(d => d.TotalCapacity),
+                })
+                .ToList();
+
+            return coordinates;
+        }
+
+        private List<TotalInterestsModel> GetInterestsTotal(DateTime week)
+        {
+            var cal = System.Globalization.DateTimeFormatInfo.CurrentInfo.Calendar;
+            int weekNumber = cal.GetWeekOfYear(week, CalendarWeekRule.FirstDay, DayOfWeek.Sunday);
+
+            List<TotalInterestsModel> interests = _interestsService.GetInterests()
+                .Where(c => SqlFunctions.DatePart("week", c.FlagTime) == weekNumber)
+                .OrderBy(c => c.FlagTime)
+                .GroupBy(c => SqlFunctions.DatePart("weekday", c.FlagTime).Value)
+                .Select(c => new TotalInterestsModel
+                {
+                    DayOfWeek = c.Key - 1,
+                    Total = c.Count(),
+                })
+                .ToList();
+
+            return interests;
         }
     }
 }

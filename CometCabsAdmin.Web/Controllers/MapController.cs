@@ -59,6 +59,7 @@ namespace CometCabsAdmin.Web.Controllers
         [AcceptVerbs(HttpVerbs.Post)]
         public ActionResult GetRoute(string latitude, string longitude)
         {
+            MapViewModel model = new MapViewModel();
             JsonResult result = new JsonResult();
 
             if ((!string.IsNullOrWhiteSpace(latitude)) && (!string.IsNullOrWhiteSpace(longitude)))
@@ -68,14 +69,32 @@ namespace CometCabsAdmin.Web.Controllers
                 if (coordinate != null)
                 {
                     Route route = _routeService.GetRoute(coordinate.RouteId);
+                    List<RouteDirections> directions = _routeService.GetRouteDirections(coordinate.RouteId).ToList();
 
                     if (route != null)
                     {
-                        result = Json(route);
-                    }
+                        model.RouteId = route.Id;
+                        model.RouteName = route.RouteName;
+                        model.RouteDesc = route.RouteDesc;
+                        model.IsActive = route.IsActive;
+                        model.RouteColor = new SelectListItem { Value = route.RouteColor };
+                        model.RouteDirections = new List<RouteDirection>();
 
-                    // result=JsonConvert.DeserializeObject("origin:{D:{0}, k:{1}}, destination:{D:{0}, k:{1}}, waypoints:{
-                    // {location:{D:{0}, k:{1}}, stopover: false}, {location:{D:{0}, k:{1}}, stopover: false}}}
+                        foreach (RouteDirections direction in directions)
+                        {
+                            RouteDirection routeDirection = new RouteDirection
+                            {
+                                RouteId = direction.RouteId,
+                                Latitude = direction.Latitude,
+                                Longitude = direction.Longitude,
+                                TagName = direction.TagName,
+                            };
+
+                            model.RouteDirections.Add(routeDirection);
+                        }
+
+                        result = Json(JsonConvert.SerializeObject(model));
+                    }
                 }
             }
 
@@ -83,43 +102,30 @@ namespace CometCabsAdmin.Web.Controllers
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult GetForm(Nullable<long> id = null)
-        {
-            MapViewModel model = new MapViewModel();
-
-            if (id.HasValue)
-            {
-                Route route = _routeService.GetRoute(id.Value);
-
-                if (route != null)
-                {
-                    model.RouteName = route.RouteName;
-                    model.RouteDesc = route.RouteDesc;
-                    model.IsActive = route.IsActive;
-                    model.RouteColor = route.RouteColor;
-
-                    string coordinateString = string.Empty;
-
-                    foreach (RouteCoordinates coordinate in route.RouteCoordinates)
-                    {
-                        coordinateString = string.Concat(coordinateString, string.Format("{0},{1}|", coordinate.Latitude.ToString(), coordinate.Longitude.ToString()));
-                    }
-
-                    // model.RouteCoordinates = coordinateString.Substring(0, coordinateString.Length - 1);
-                }
-            }
-
-            return PartialView("_routeForm", model);
-        }
-
-        [AcceptVerbs(HttpVerbs.Post)]
         public ActionResult SaveRoute(string routeId, string routeName, string routeDesc, string routeColor, bool isActive, string routes, string directions)
         {
-            Route route = _routeService.GetRoute(long.Parse(routeId));
+            long id = long.Parse(routeId);
+            
             SelectListItem color = JsonConvert.DeserializeObject<SelectListItem>(routeColor);
             List<RouteCoordinate> coordinates = JsonConvert.DeserializeObject<List<RouteCoordinate>>(routes);
-            List<RouteCoordinates> routeCoordinates = new List<RouteCoordinates>();
-            List<RouteDirections> routeDirections = new List<RouteDirections>();
+
+            List<RouteCoordinates> routeCoordinates = _routeService.GetRouteCoordinates(id).ToList();
+            List<RouteDirections> routeDirections = _routeService.GetRouteDirections(id).ToList();
+
+            foreach (RouteCoordinates coordinate in routeCoordinates)
+            {
+                _routeService.DeleteRouteCoordinate(coordinate);
+            }
+
+            routeCoordinates.Clear();
+
+            foreach (RouteDirections direction in routeDirections)
+            {
+                _routeService.DeleteRouteDirections(direction);
+            }
+
+            routeDirections.Clear();
+
             dynamic dirs = JsonConvert.DeserializeObject(directions);
 
             foreach (var dir in dirs)
@@ -152,6 +158,8 @@ namespace CometCabsAdmin.Web.Controllers
                 });
             }
 
+            Route route = _routeService.GetRoute(id);
+
             if (route == null)
             {
                 route = new Route
@@ -171,8 +179,15 @@ namespace CometCabsAdmin.Web.Controllers
             }
             else
             {
-                _routeService.DeleteRouteCoordinate(route.Id);
+                route.RouteName = routeName;
+                route.RouteDesc = routeDesc;
+                route.RouteColor = color.Value;
+                route.IsActive = isActive;
                 route.RouteCoordinates = routeCoordinates;
+                route.RouteDirections = routeDirections;
+                route.UpdatedBy = HttpContext.User.Identity.Name;
+                route.UpdateDate = DateTime.Now;
+
                 _routeService.UpdateRoute(route);
             }
 

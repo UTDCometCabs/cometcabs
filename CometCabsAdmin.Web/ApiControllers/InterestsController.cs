@@ -83,8 +83,12 @@ namespace CometCabsAdmin.Web.ApiControllers
             };
 
             long id = _interestsService.InsertInterest(interest);
+            dynamic info = new
+            {
+                interestId = id,
+            };
 
-            string result = JsonConvert.SerializeObject(string.Format("{{ interestId: {0} }}", id));
+            string result = JsonConvert.SerializeObject(info);
             response.Content = new StringContent(result, Encoding.UTF8, "application/json");
 
             return response;

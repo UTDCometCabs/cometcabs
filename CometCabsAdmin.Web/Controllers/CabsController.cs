@@ -114,5 +114,18 @@ namespace CometCabsAdmin.Web.Controllers
 
             return Content(message);
         }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        public ActionResult DeleteCab(string id)
+        {
+            Cab cab = _cabService.GetCab(long.Parse(id));
+
+            if (cab != null)
+            {
+                _cabService.DeleteCab(cab);
+            }
+
+            return Content(Url.Action("Index"));
+        }
     }
 }

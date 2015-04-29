@@ -30,10 +30,12 @@ namespace CometCabsAdmin.Web.ApiControllers
 
         public HttpResponseMessage Get()
         {
+            // do some housekeeping: logout 
+
             List<CabActivity> activities = _cabService.GetCabActivity()
                 .Where(t => (DbFunctions.TruncateTime(t.LoginTime) == DbFunctions.TruncateTime(DateTime.Now))
                     && (t.CabCoordinate
-                        .OrderByDescending(c=>c.CurrentDateTime)
+                        .OrderByDescending(c => c.CurrentDateTime)
                         .FirstOrDefault().CurrentStatus.ToLower().Equals("on-duty")))
                 .ToList();
 
@@ -53,6 +55,7 @@ namespace CometCabsAdmin.Web.ApiControllers
                         CabCode = activity.Cab.CabCode,
                         ActivityId = activity.Id,
                         ActivityName = string.Format("{0}-{1}", activity.Cab.CabCode, activity.Driver.Username),
+                        DriverName = activity.Driver.UserProfile.NameLastFirst,
                         Capacity = current.CurrentCapacity,
                         MaxCapacity = activity.Cab.MaxCapacity,
                         CurrentStatus = current.CurrentStatus,

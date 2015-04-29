@@ -162,6 +162,7 @@
     <Content Include="App_Code\ExtensionMethods.cs" />
     <Compile Include="ApiControllers\BaseController.cs" />
     <Compile Include="ApiControllers\CabActivityController.cs" />
+    <Compile Include="ApiControllers\CabCapacityController.cs" />
     <Compile Include="ApiControllers\CancelInterestController.cs" />
     <Compile Include="ApiControllers\InterestsController.cs" />
     <Compile Include="ApiControllers\LoginController.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="Models\CustomPrincipalSerializeModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\MapViewModel.cs" />
+    <Compile Include="Models\StatisticsModel.cs" />
     <Compile Include="Models\UserAccountViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -200,9 +202,12 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Images\busgreen.png" />
+    <Content Include="Content\Images\busred.png" />
     <Content Include="Content\Images\Cab.png" />
     <Content Include="Content\Images\CometCabs-small.png" />
     <Content Include="Content\Images\CometCabs.png" />
+    <Content Include="Content\Images\flagblue.png" />
     <Content Include="Content\Images\Rider.png" />
     <Content Include="Content\ngDialog-custom-width.css" />
     <Content Include="Content\ngDialog-theme-default.css" />
@@ -242,6 +247,7 @@
     <Content Include="Content\themes\base\tabs.css" />
     <Content Include="Content\themes\base\theme.css" />
     <Content Include="Content\themes\base\tooltip.css" />
+    <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

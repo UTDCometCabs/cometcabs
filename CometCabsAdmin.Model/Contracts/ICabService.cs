@@ -18,6 +18,7 @@ namespace CometCabsAdmin.Model.Contracts
         IQueryable<CabActivity> GetCabActivity();
         CabActivity GetCabActivity(long id);
         long InsertCabActivity(CabActivity activity);
+        void UpdateCabActivity(CabActivity cabActivity);
 
         IQueryable<CabCoordinate> GetCabCoordinates();
         CabCoordinate GetCabCoordinate(long id);
@@ -27,7 +28,7 @@ namespace CometCabsAdmin.Model.Contracts
         //IQueryable<Entities.RouteCoordinates> GetRouteCoordinates(long id);
         //RouteCoordinates GetRouteCoordinate(float latitude, float longitude);
         //void DeleteRouteCoordinate(RouteCoordinates coordinate);
-        //void DeleteRouteCoordinate(long id);
+        //void DeleteRouteCoordinate(long id);        
     }
 }
 
