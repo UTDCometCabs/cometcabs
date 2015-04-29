@@ -42,28 +42,16 @@ angular.module('starter', ['ionic'])
         map = new google.maps.Map(document.getElementById("map"),
             mapOptions);
         
-        //setRouteCoordinates(); //Sets the details for routes
-		//setCabMarkers();
+		// Get the route choices and populate the dropdown
         setRouteChoice();
+		
+		// Set the interval at which the data will refresh
 		setInterval(refresh, 1000);
 		
-        /*Sets a marker for the current position */
-		/*if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(function(position) {
-			var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			var marker = new google.maps.Marker({
-				position: currentPosition,
-				map: map,
-				title:"You are here"
-				});		
-			});
-		} else {
-			alert("Geolocation is not supported by this browser.");
-		}*/
-		
+		// If user zooms out too far, reset the zoom back to the threshold
 		google.maps.event.addListener(map, 'zoom_changed', function() {
-     if (map.getZoom() < 15) map.setZoom(15);
-   });
+			if (map.getZoom() < 15) map.setZoom(15);
+		});
        
   }
 
@@ -98,24 +86,37 @@ angular.module('starter', ['ionic'])
             xhr.onload = function () {
                 var resources = JSON.parse(xhr.responseText);
                 var routes = resources.Routes;
+				
+				// Create an option to display all routes
                 routes.push({"RouteId":0,"RouteName":"All"});
 				
+				// Check to see if this is the first load of the drop down
 				var firstLoad = true;
 				if($scope.allRoutes) {
 					firstLoad = false;
 				}
 				
+				// Store the json data
                 $scope.allRoutes = routes;
 				
+				// Create the html necessary to display the current route choices
 				var listItems= "";
 				for (var i = 0; i < $scope.allRoutes.length; i++){
 					listItems+= "<option value='" + $scope.allRoutes[i].RouteId + "'>" + $scope.allRoutes[i].RouteName + "</option>";
 				}
+				
+				// Save the current selected index in the drop down
 				var si = document.getElementById("route").selectedIndex;
+				
+				// Populate the drop down with the latest data
 				$("#route").html(listItems);
+				
+				// If this isn't the first load of the drop down
 				if(!firstLoad && si != 0 && si > 0) {
+					// Set the selected index to the previously selected index
 					document.getElementById("route").selectedIndex = si;
 				} else if(firstLoad) {
+					// Set the currently selected option to be all routes
 					document.getElementById("route").selectedIndex = $scope.allRoutes.length - 1;
 				}
             };
@@ -153,15 +154,19 @@ angular.module('starter', ['ionic'])
             // Response handlers.
             xhr.onload = function () {
                 var JSONroutes = JSON.parse(xhr.responseText);
-                //alert("'" + routeName + "'");
+                
+				// If all routes option isn't selected and the route name is set
                 if (routeName != 'All' && routeName) {
+					// Find the json data for that route, and set it
                     for (i = 0; i < JSONroutes.length; i++) {
                         if (routeName == JSONroutes[i].Name) {
                             setRouteFromJSON(JSONroutes[i]);
                         }
                     }
                     removeOldRoutes(); 
+				// If the route name isn't set or the all routes option is selected
                 } else if (!routeName || routeName == 'All') {
+					// Set all the routes
                     for (i = 0; i < JSONroutes.length; i++) {
                         setRouteFromJSON(JSONroutes[i]);
                     }
@@ -179,9 +184,11 @@ angular.module('starter', ['ionic'])
   
     function setRouteFromJSON(route) {
         var routePath = [];
+		// Save all points in the route's path
         for (j = 0; j < route.Path.length; j++) {
             routePath.push(new google.maps.LatLng(route.Path[j].Latitude, route.Path[j].Longitude));
         }
+		// Set the line properties
         var routeLine = new google.maps.Polyline({
             path: routePath,
             geodesic: true,
@@ -194,10 +201,12 @@ angular.module('starter', ['ionic'])
 	
   }
     function removeOldRoutes() {
+		// Remove all old routes
 		for (i = 0; i < routes.length; i++) {
 			routes[i].setMap(null);
 		}
 		routes = [];
+		// Set the new routes to be the current routes
 		for (i = 0; i < newroutes.length; i++) {
 			routes.push(newroutes[i]);
 		}
@@ -241,7 +250,6 @@ angular.module('starter', ['ionic'])
             // Response handlers.
             xhr.onload = function () {
                 var cabs = JSON.parse(xhr.responseText);
-                //alert(cabs[0].MaxCapacity);
                 for (i = 0; i < cabs.length; i++) {
                     drawCab(cabs[i]);
                 }
@@ -296,6 +304,7 @@ angular.module('starter', ['ionic'])
 		newcabs = [];
     }
     
+	// Refresh the data for the rider app
     function refresh() {
         setRouteChoice();
         setRouteCoordinates(); //Sets the details for routes
@@ -306,8 +315,11 @@ angular.module('starter', ['ionic'])
 		var btn = document.getElementById("iWantToRideButton");
 		var activeColor = 'green';
 		
+		// If the button/function isn't currently active
 		if(btn.style.color != activeColor) {
+			// If geolocation is currently supported
             if (navigator.geolocation) {
+				// Get and send the user's current position to the system, indicating the interest in riding
                 navigator.geolocation.getCurrentPosition(function(position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
@@ -335,29 +347,35 @@ angular.module('starter', ['ionic'])
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
+			
+			// Set the button/function to active
 			btn.style.color = activeColor;
+			
+		// Else, the button/function is currently active
 		} else {
-                var url = 'http://cometcabs.azurewebsites.net/api/CancelInterest?interestId=' + interestId;
+			// Cancel the user's interest in riding
+			var url = 'http://cometcabs.azurewebsites.net/api/CancelInterest?interestId=' + interestId;
 
-                var xhr = createCORSRequest('POST', url);
+			var xhr = createCORSRequest('POST', url);
 
-                if (!xhr) {
-                    alert('CORS not supported');
-                    return;
-                }
+			if (!xhr) {
+				alert('CORS not supported');
+				return;
+			}
 
-                // Response handlers.
-                xhr.onload = function () {
-                    var response = JSON.parse(xhr.responseText);
-                    //alert(response);
-                };
+			// Response handlers.
+			xhr.onload = function () {
+				var response = JSON.parse(xhr.responseText);
+				//alert(response);
+			};
 
-                xhr.onerror = function () {
-                    alert('Error making the request.');
-                };
+			xhr.onerror = function () {
+				alert('Error making the request.');
+			};
 
-                xhr.send();
+			xhr.send();
 
+			// Set the button/function to inactive
 			btn.style.color = 'white';
 		}
 	};
@@ -366,7 +384,7 @@ angular.module('starter', ['ionic'])
       google.maps.event.addDomListener(window, 'load', initialize);
 	/*Everything after here was from example code (http://paulsutherland.net/ionic-and-google-maps-api/. 
 		I don't know how these affect the app*/
-      $scope.centerOnMe = function() {
+		$scope.centerOnMe = function() {
         if(!$scope.map) {
           return;
         }
